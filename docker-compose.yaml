@@ -32,12 +32,19 @@ services:
       - POSTGRES_PASSWORD=hello_django
       - POSTGRES_DB=hello_django_dev
 
-
   protobufs:
     build:
       context: protobufs
     volumes:
-      - ./frontend/src:/build/elm
+      - ./frontend/src:/build/typescript
       - ./server/proto:/build/python
+
+  frontend:
+    build:
+      context: frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - 3001:3000
 volumes:
   postgres_data:
