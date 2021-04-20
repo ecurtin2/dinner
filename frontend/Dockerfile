@@ -1,3 +1,4 @@
 FROM node
-ADD . .
+ADD . /app
+WORKDIR /app
 ENTRYPOINT ["npm", "run", "start"]

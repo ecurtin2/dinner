@@ -1,35 +1,30 @@
-import React, { FunctionComponent } from "react";
+import React from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import "./App.css";
 import RecipesPage  from "./Recipe";
 import SubmitPage from "./Submit";
 
 function Home() {
-  return <h2>Home</h2>;
+  return <h2>This is my home page</h2>;
 }
 
 function Navigation() {
   return (
-    <div>
+    <div >
       <Router>
         <div>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/submit">Submit</Link>
-              </li>
-              <li>
-                <Link to="/recipes">Recipes</Link>
-              </li>
-            </ul>
+          <nav className="h-24 rounded-xl grid grid-cols-3 bg-green-100 text-center items-center">
+            <Link to="/">Home</Link>
+            <Link to="/submit">Submit</Link>
+            <Link to="/recipes">Recipes</Link>
           </nav>
         </div>
         <Switch>
           <Route path="/submit">
             <SubmitPage />
+          </Route>
+          <Route path="/recipes/:id">
+            <RecipesPage />
           </Route>
           <Route path="/recipes">
             <RecipesPage />
@@ -45,7 +40,7 @@ function Navigation() {
 
 function App() {
   return (
-    <div>
+    <div className="">
       <Navigation />
     </div>
   );
