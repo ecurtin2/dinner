@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import "./App.css";
-import RecipesPage  from "./Recipe";
+import RecipesPage from "./Recipe";
 import SubmitPage from "./Submit";
 
 function Home() {
@@ -10,11 +10,13 @@ function Home() {
 
 function Navigation() {
   return (
-    <div >
+    <div>
       <Router>
         <div>
-          <nav className="h-24 rounded-xl grid grid-cols-3 bg-green-100 text-center items-center">
-            <Link to="/">Home</Link>
+          <nav className="h-24 text-xl rounded-xl grid grid-cols-3 bg-green-100 text-center items-center">
+            <Link to="/" className="">
+              Home
+            </Link>
             <Link to="/submit">Submit</Link>
             <Link to="/recipes">Recipes</Link>
           </nav>
