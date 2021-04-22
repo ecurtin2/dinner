@@ -36,7 +36,7 @@ services:
     build:
       context: protobufs
     volumes:
-      - ./frontend/src:/build/typescript
+      - ./frontend/src/messages:/build/typescript
       - ./server/proto:/build/python
 
   frontend:

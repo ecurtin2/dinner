@@ -9,7 +9,7 @@ import {
   ErrorMessage,
   useField,
 } from "formik";
-import { Recipe } from "./Types";
+import { Recipe } from "./messages/recipe";
 import { postRecipe } from "./Api";
 import { SingleRecipePage } from "./Recipe";
 
@@ -22,10 +22,10 @@ const FormSchema = Yup.object().shape({
     .min(2, "Too Short!")
     .max(500, "Too long, must be < 500 characters!")
     .required("required"),
-  paragraph: Yup.string()
+  instructions: Yup.string()
     .min(1, "Too Short!")
     .required("required"),
-  teaser_image_png_b64: Yup.string().required("required"),
+  teaserImage: Yup.string().required("required"),
 });
 
 const MyTextArea = ({ label, ...props }: any) => {
@@ -112,8 +112,8 @@ const InnerForm = (props: FormikProps<Recipe>) => {
 
           <FieldLabel name="Teaser Image" />
           <Field
-            id="teaser_image_png_b64"
-            name="teaser_image_png_b64"
+            id="teaserImage"
+            name="teaserImage"
             component={CustomFileUpload}
           />
 
@@ -141,7 +141,7 @@ const InnerForm = (props: FormikProps<Recipe>) => {
           </button>
 
           <FieldLabel name="Instructions" />
-          <MyTextArea className="p-4" name="paragraph" rows="10" />
+          <MyTextArea className="p-4" name="instructions" rows="10" />
 
           <button
             type="submit"
@@ -165,11 +165,11 @@ const SubmitPage = withFormik<MyFormProps, Recipe>({
   mapPropsToValues: (props) => {
     return {
       id: "",
-      title: "",
-      description: "",
-      paragraph: "",
-      teaser_image_png_b64: "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAdQAAAA8BAMAAAAtaVYEAAAAG1BMVEXMzMyWlpacnJzFxcWqqqqjo6O3t7exsbG+vr6io6CQAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACh0lEQVRoge2WwVPaQBSHfyEQc1yygByTNep1ae09xtLpkUSY8QjT8a7O2F5Da6f/dt++gLUw9NRKtO87IP4evNlv3rIbQBAEQRAEQRAEQRAEQRAEQRAE4TWTdLtdvaPmq13fCovjaiv0LDD6S8v6F4xn/dlkR2236iIqDrfCpqsCu2b6B1W/b3FbbaavUvUgBjrZZvoiVIPiBDhLLuHnqcV1NId3FjtV78F8K1xMYwySC8U1oEUvfkW/2EtwcmYu8KjqAp3XPRsGqS6mxRz5F4NOmk+C/ngA73zCqum1+VyifXoXYzk9VlyrpYhlaiwn5ftjlxpjEnDQ69c9GwapHroteYKRHVlfeze4g3cEVs38Q4pbc19jipbiGs+uNDHGaN24hIojkvfoMO+CPxLZumfD0AgjYzQqpzqnWdFsrEdvnGqFIc0wBNloBIprcGJJV1EpmLjk7YAb1RuYPzJY9WwYpEDToGWXXduOPmJB/1W8RUnVUplerhNNZ1SouFZLhepXcp5SuFLlYN2zYdBUeU3nH2hYP4psWWH1a3xUbfc+aZprqLhWH0tBrcpJeN/D41SrJz0bhoZP+y3znVOAUNMmfthQHbk/NHfFtdVlU29gTuZY2rUqB6ue+xXbhn5RM3RiUr21XuXrzgTlluqBpkOoo7hGBRrireJjiZNhfSyxKgernns220K7WyOpYO7LrNPLJ2GUDzdUW6ezlC4bo7hGLPrlQPFlw0lRXzasysG6Z8PQ7umdrvuvafvIL+kR4rt7hPhNNTRZbsPiSnEN7gv9Kq4fIVzy7ukjhAvWPV8oFYJ432t4JqZ4k+17Dc/EInJX6n/BQXK17yUIgiAIgiAIgiAIL4Gf3bhxw5vF4B4AAAAASUVORK5CYII=",
-      ingredients: [{ name: "", quantity: 0, unit: "" }],
+      title: "My Recipe",
+      description: "Write a short description here...",
+      instructions: "Describe step-by-step process here...",
+      teaserImage: "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAdQAAAA8BAMAAAAtaVYEAAAAG1BMVEXMzMyWlpacnJzFxcWqqqqjo6O3t7exsbG+vr6io6CQAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACh0lEQVRoge2WwVPaQBSHfyEQc1yygByTNep1ae09xtLpkUSY8QjT8a7O2F5Da6f/dt++gLUw9NRKtO87IP4evNlv3rIbQBAEQRAEQRAEQRAEQRAEQRAE4TWTdLtdvaPmq13fCovjaiv0LDD6S8v6F4xn/dlkR2236iIqDrfCpqsCu2b6B1W/b3FbbaavUvUgBjrZZvoiVIPiBDhLLuHnqcV1NId3FjtV78F8K1xMYwySC8U1oEUvfkW/2EtwcmYu8KjqAp3XPRsGqS6mxRz5F4NOmk+C/ngA73zCqum1+VyifXoXYzk9VlyrpYhlaiwn5ftjlxpjEnDQ69c9GwapHroteYKRHVlfeze4g3cEVs38Q4pbc19jipbiGs+uNDHGaN24hIojkvfoMO+CPxLZumfD0AgjYzQqpzqnWdFsrEdvnGqFIc0wBNloBIprcGJJV1EpmLjk7YAb1RuYPzJY9WwYpEDToGWXXduOPmJB/1W8RUnVUplerhNNZ1SouFZLhepXcp5SuFLlYN2zYdBUeU3nH2hYP4psWWH1a3xUbfc+aZprqLhWH0tBrcpJeN/D41SrJz0bhoZP+y3znVOAUNMmfthQHbk/NHfFtdVlU29gTuZY2rUqB6ue+xXbhn5RM3RiUr21XuXrzgTlluqBpkOoo7hGBRrireJjiZNhfSyxKgernns220K7WyOpYO7LrNPLJ2GUDzdUW6ezlC4bo7hGLPrlQPFlw0lRXzasysG6Z8PQ7umdrvuvafvIL+kR4rt7hPhNNTRZbsPiSnEN7gv9Kq4fIVzy7ukjhAvWPV8oFYJ432t4JqZ4k+17Dc/EInJX6n/BQXK17yUIgiAIgiAIgiAIL4Gf3bhxw5vF4B4AAAAASUVORK5CYII=",
+      ingredients: [{ name: "ingredient1", quantity: 1, unit: "" }],
     };
   },
   validationSchema: FormSchema,

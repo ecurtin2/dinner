@@ -1,6 +1,5 @@
-mkdir -p /build/elm \
-  && mkdir -p /build/python \
-  && protoc \
-  --elm_out=/build/elm \
-  --python_betterproto_out=/build/python \
-  recipe.proto
+mkdir -p /build/python
+protoc --python_betterproto_out=/build/python recipe.proto
+
+mkdir -p /build/typescript
+protoc --ts_proto_out=/build/typescript --ts_proto_opt=esModuleInterop=true recipe.proto

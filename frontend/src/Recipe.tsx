@@ -1,14 +1,14 @@
 import React, { FunctionComponent } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Recipe, RecipeList } from "./Types";
+import { Recipe, RecipeList } from "./messages/recipe";
 import { getRecipes, getRecipe } from "./Api";
 
 const RecipeCard: FunctionComponent<Recipe> = ({
   id,
   title,
-  paragraph,
+  instructions,
   description,
-  teaser_image_png_b64,
+  teaserImage,
 }: Recipe) => (
   <Link to={{ pathname: `/recipes/${id}` }}>
     <div className="bg-white hover:bg-primary_muted rounded-xl shadow-md">
@@ -17,7 +17,7 @@ const RecipeCard: FunctionComponent<Recipe> = ({
           <img
             alt="Recipe Teaser"
             className="h-56 w-full object-cover md:w-48 rounded-xl"
-            src={`${teaser_image_png_b64}`}
+            src={`${teaserImage}`}
           ></img>
         </div>
         <div className="p-8">
@@ -59,7 +59,7 @@ function SingleRecipePage(recipe: Recipe) {
         <img
           alt="teaser"
           className="object-scale-down object-center m-auto"
-          src={`${recipe.teaser_image_png_b64}`}
+          src={`${recipe.teaserImage}`}
         ></img>
         <SectionHeader name="Description" />
         {recipe.description}
@@ -81,7 +81,7 @@ function SingleRecipePage(recipe: Recipe) {
       {/* Body */}
       <div>
         <SectionHeader name="Instructions" />
-        {recipe.paragraph}
+        {recipe.instructions}
       </div>
     </div>
   );

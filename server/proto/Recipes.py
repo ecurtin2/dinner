@@ -2,12 +2,33 @@
 # sources: recipe.proto
 # plugin: python-betterproto
 from dataclasses import dataclass
+from typing import List
 
 import betterproto
 
 
 @dataclass
-class Recipe(betterproto.Message):
+class Ingredient(betterproto.Message):
     name: str = betterproto.string_field(1)
-    id: int = betterproto.int32_field(2)
-    email: str = betterproto.string_field(3)
+
+
+@dataclass
+class RecipeIngredient(betterproto.Message):
+    name: str = betterproto.string_field(1)
+    quantity: int = betterproto.int32_field(2)
+    unit: str = betterproto.string_field(3)
+
+
+@dataclass
+class Recipe(betterproto.Message):
+    id: str = betterproto.string_field(1)
+    title: str = betterproto.string_field(2)
+    description: str = betterproto.string_field(3)
+    instructions: str = betterproto.string_field(4)
+    teaser_image: str = betterproto.string_field(5)
+    ingredients: List["RecipeIngredient"] = betterproto.message_field(6)
+
+
+@dataclass
+class RecipeList(betterproto.Message):
+    recipes: List["Recipe"] = betterproto.message_field(1)
