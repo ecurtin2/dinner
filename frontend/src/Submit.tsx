@@ -24,7 +24,6 @@ const FormSchema = Yup.object().shape({
     .required("required"),
   paragraph: Yup.string()
     .min(1, "Too Short!")
-    .max(500, "Too long, must be < 500 characters!")
     .required("required"),
   teaser_image_png_b64: Yup.string().required("required"),
 });
@@ -38,7 +37,7 @@ const MyTextArea = ({ label, ...props }: any) => {
       <label htmlFor={props.id || props.name}>{label}</label>
       <textarea className="text-area" {...field} {...props} />
       {meta.touched && meta.error ? (
-        <div className="text-red-500">{meta.error}</div>
+        <div className="text-error">{meta.error}</div>
       ) : null}
     </>
   );
@@ -77,40 +76,58 @@ function CustomFileUpload(props: any) {
   );
 }
 
+type FieldLabelProps = {
+    name: string;
+}
+
+function FieldLabel(props: FieldLabelProps) {
+    return <label htmlFor={props.name} className="pt-4 pb-2 max-h-12">{props.name}</label>
+}
+
+type InlineFieldProps = {
+    name: string,
+    placeholder: string
+}
+
+function InlineField(props: InlineFieldProps) {
+    return (<Field
+      placeholder={props.placeholder}
+      name={props.name}
+      type="text"
+      className="p-2 m-2"
+    />)
+}
+
 const InnerForm = (props: FormikProps<Recipe>) => {
   const { isSubmitting, setValues, values } = props;
   const ingredients = props.values.ingredients;
-
   const recipePage = SingleRecipePage(props.values);
   return (
-    <div>
-      <div className="grid grid-cols-2 divide-x-8 divide-black-100">
-        <Form className="grid grid-cols-1">
-          <label htmlFor="title">Title</label>
+    <div className="pb-10">
+      <div className="grid grid-cols-2">
+
+        <Form className="grid grid-cols-1 pl-10 pr-20">
+          <FieldLabel name="Title" />
           <Field className="w-1/2" name="title" type="text" />
 
-          <label htmlFor="description">Description</label>
-          <MyTextArea className="max-w-prose" name="description" rows="3" />
+          <FieldLabel name="Teaser Image" />
+          <Field
+            id="teaser_image_png_b64"
+            name="teaser_image_png_b64"
+            component={CustomFileUpload}
+          />
 
-          <label htmlFor="ingredients">Ingredients</label>
+
+          <FieldLabel name="Description" />
+          <MyTextArea className="p-4" name="description" rows="5" />
+
+          <FieldLabel name="Ingredients" />
           {ingredients.map((val, idx) => {
             return (
-              <div key={idx} className="p-2">
-                <Field
-                  placeholder="ingredient"
-                  name={`ingredients[${idx}].name`}
-                  type="text"
-                />
-                <Field
-                  placeholder="quantity"
-                  name={`ingredients[${idx}].quantity`}
-                  type="text"
-                />
-                <Field
-                  placeholder="unit"
-                  name={`ingredients[${idx}].unit`}
-                  type="text"
-                />
+              <div key={idx} className="">
+                <InlineField placeholder="ingredient" name={`ingredients[${idx}].name`} />
+                <InlineField placeholder="quantity" name={`ingredients[${idx}].quantity`} />
+                <InlineField placeholder="unit" name={`ingredients[${idx}].unit`} />
               </div>
             );
           })}
@@ -118,25 +135,18 @@ const InnerForm = (props: FormikProps<Recipe>) => {
             type="button"
             onClick={(e) => onAddIngredients(e, values, setValues)}
             disabled={isSubmitting}
-            className="w-1/12 bg-blue-500 rounded-xl font-bold p-1 text-white"
+            className="w-8 bg-primary rounded-xl font-bold p-1 text-white max-h-8"
           >
             +
           </button>
 
-          <label htmlFor="paragraph">Instructions</label>
-          <MyTextArea className="max-w-prose h-48" name="paragraph" rows="10" />
-
-          <label htmlFor="teaser_image_png_b64">Teaser Image</label>
-          <Field
-            id="teaser_image_png_b64"
-            name="teaser_image_png_b64"
-            component={CustomFileUpload}
-          />
+          <FieldLabel name="Instructions" />
+          <MyTextArea className="p-4" name="paragraph" rows="10" />
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="justify-self-center w-1/12 bg-blue-500 rounded-xl font-bold p-1 text-white"
+            className="justify-self-center bg-primary rounded-xl font-bold p-2 text-white"
           >
             Submit
           </button>

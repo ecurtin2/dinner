@@ -1,24 +1,28 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import "./App.css";
-import RecipesPage from "./Recipe";
+import { RecipesPage } from "./Recipe";
 import SubmitPage from "./Submit";
 
 function Home() {
-  return <h2>This is my home page</h2>;
+  return (
+  <div className="">
+    <h2>This is my home page</h2>
+  </div>
+  )
 }
 
 function Navigation() {
   return (
-    <div>
+    <div className="pl-10 pr-10">
       <Router>
         <div>
-          <nav className="h-24 text-xl rounded-xl grid grid-cols-3 bg-green-100 text-center items-center">
-            <Link to="/" className="">
-              Home
-            </Link>
-            <Link to="/submit">Submit</Link>
-            <Link to="/recipes">Recipes</Link>
+          <nav className="h-24 pt-5 text-xl content-center">
+            <div className="float-left"><Link to="/">RecipeNator</Link></div>
+            <div className="float-right">
+                <Link to="/submit" className="pl-12">Submit</Link>
+                <Link to="/recipes" className="pl-12">Recipes</Link>
+            </div>
           </nav>
         </div>
         <Switch>
