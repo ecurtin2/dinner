@@ -5,22 +5,27 @@ services:
   server:
     build:
       context: server
-    command: ["python", "/src/server.py"]
+    working_dir: /src
+    command: ["bash", "-c", "python /src/manage.py migrate && python /src/manage.py runserver 0.0.0.0:8000"]
     ports:
-    - 50051:50051
+    - 8000:8000
     restart: always
     volumes:
     - ./storage/:/storage
     environment:
-      - HOSTNAME=0.0.0.0
-      - PORT=50051
-      - STORAGE_DIR=/storage
+#      - HOSTNAME=0.0.0.0  grpc only
+#      - PORT=50051        grpc only
+#      - STORAGE_DIR=/storage grpc only
+      - SQL_DATABASE=hello_django_dev
+      - SQL_ENGINE=django.db.backends.postgresql
       - SQL_USER=hello_django
       - SQL_PASSWORD=hello_django
       - SQL_HOST=db
       - SQL_PORT=5432
-#    depends_on:
-#      - db
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1] 0.0.0.0
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+    depends_on:
+      - db
 
   db:
     build:

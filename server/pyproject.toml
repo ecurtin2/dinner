@@ -8,6 +8,8 @@ authors = ["ecurtin2 <ecurtin2@illinois.edu>"]
 python = "^3.8"
 betterproto = "2.0.0b3"
 grpclib = "^0.4.1"
+djangorestframework = "^3.12.4"
+psycopg2 = "^2.8.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.3"
