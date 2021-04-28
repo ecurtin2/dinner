@@ -1,4 +1,7 @@
-import { Recipe } from "./messages/recipe";
+import { RecipeStoreClient, Recipe } from "./messages/recipe";
+import { Server, ChannelCredentials, ServerCredentials } from '@grpc/grpc-js';
+
+const client = new RecipeStoreClient(`127.0.0.1:50051`, ChannelCredentials.createInsecure());
 
 let RECIPE_REPOSITORY: Recipe[] = [
   {
@@ -57,4 +60,8 @@ export function postRecipe(recipe: Recipe) {
   console.log(loaded)
   recipe.id = (RECIPE_REPOSITORY.length + 1).toString();
   RECIPE_REPOSITORY.push(recipe);
+  client.postRecipe(recipe, (err, res) => {
+     console.log(err);
+     console.log(res);
+  });
 }

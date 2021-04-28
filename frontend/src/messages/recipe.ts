@@ -1,8 +1,20 @@
 /* eslint-disable */
 import Long from "long";
+import {
+  makeGenericClientConstructor,
+  ChannelCredentials,
+  ChannelOptions,
+  UntypedServiceImplementation,
+  handleUnaryCall,
+  Client,
+  ClientUnaryCall,
+  Metadata,
+  CallOptions,
+  ServiceError,
+} from "@grpc/grpc-js";
 import _m0 from "protobufjs/minimal";
 
-export const protobufPackage = "Recipes";
+export const protobufPackage = "";
 
 export interface Ingredient {
   name: string;
@@ -25,6 +37,50 @@ export interface Recipe {
 
 export interface RecipeList {
   recipes: Recipe[];
+}
+
+export interface RecipeQuery {
+  id: string;
+}
+
+export interface PostRecipeResponse {
+  status: PostRecipeResponse_Status;
+}
+
+export enum PostRecipeResponse_Status {
+  SUCCESS = 0,
+  FAIL = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function postRecipeResponse_StatusFromJSON(
+  object: any
+): PostRecipeResponse_Status {
+  switch (object) {
+    case 0:
+    case "SUCCESS":
+      return PostRecipeResponse_Status.SUCCESS;
+    case 1:
+    case "FAIL":
+      return PostRecipeResponse_Status.FAIL;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return PostRecipeResponse_Status.UNRECOGNIZED;
+  }
+}
+
+export function postRecipeResponse_StatusToJSON(
+  object: PostRecipeResponse_Status
+): string {
+  switch (object) {
+    case PostRecipeResponse_Status.SUCCESS:
+      return "SUCCESS";
+    case PostRecipeResponse_Status.FAIL:
+      return "FAIL";
+    default:
+      return "UNKNOWN";
+  }
 }
 
 const baseIngredient: object = { name: "" };
@@ -407,7 +463,232 @@ export const RecipeList = {
   },
 };
 
-type Builtin = Date | Function | Uint8Array | string | number | undefined;
+const baseRecipeQuery: object = { id: "" };
+
+export const RecipeQuery = {
+  encode(
+    message: RecipeQuery,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): RecipeQuery {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseRecipeQuery } as RecipeQuery;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.id = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RecipeQuery {
+    const message = { ...baseRecipeQuery } as RecipeQuery;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = String(object.id);
+    } else {
+      message.id = "";
+    }
+    return message;
+  },
+
+  toJSON(message: RecipeQuery): unknown {
+    const obj: any = {};
+    message.id !== undefined && (obj.id = message.id);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<RecipeQuery>): RecipeQuery {
+    const message = { ...baseRecipeQuery } as RecipeQuery;
+    if (object.id !== undefined && object.id !== null) {
+      message.id = object.id;
+    } else {
+      message.id = "";
+    }
+    return message;
+  },
+};
+
+const basePostRecipeResponse: object = { status: 0 };
+
+export const PostRecipeResponse = {
+  encode(
+    message: PostRecipeResponse,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.status !== 0) {
+      writer.uint32(8).int32(message.status);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): PostRecipeResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...basePostRecipeResponse } as PostRecipeResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.status = reader.int32() as any;
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): PostRecipeResponse {
+    const message = { ...basePostRecipeResponse } as PostRecipeResponse;
+    if (object.status !== undefined && object.status !== null) {
+      message.status = postRecipeResponse_StatusFromJSON(object.status);
+    } else {
+      message.status = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: PostRecipeResponse): unknown {
+    const obj: any = {};
+    message.status !== undefined &&
+      (obj.status = postRecipeResponse_StatusToJSON(message.status));
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<PostRecipeResponse>): PostRecipeResponse {
+    const message = { ...basePostRecipeResponse } as PostRecipeResponse;
+    if (object.status !== undefined && object.status !== null) {
+      message.status = object.status;
+    } else {
+      message.status = 0;
+    }
+    return message;
+  },
+};
+
+export const RecipeStoreService = {
+  getRecipe: {
+    path: "/RecipeStore/GetRecipe",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: RecipeQuery) =>
+      Buffer.from(RecipeQuery.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => RecipeQuery.decode(value),
+    responseSerialize: (value: Recipe) =>
+      Buffer.from(Recipe.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => Recipe.decode(value),
+  },
+  queryRecipes: {
+    path: "/RecipeStore/QueryRecipes",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: RecipeQuery) =>
+      Buffer.from(RecipeQuery.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => RecipeQuery.decode(value),
+    responseSerialize: (value: RecipeList) =>
+      Buffer.from(RecipeList.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => RecipeList.decode(value),
+  },
+  postRecipe: {
+    path: "/RecipeStore/PostRecipe",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: Recipe) =>
+      Buffer.from(Recipe.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => Recipe.decode(value),
+    responseSerialize: (value: PostRecipeResponse) =>
+      Buffer.from(PostRecipeResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => PostRecipeResponse.decode(value),
+  },
+} as const;
+
+export interface RecipeStoreServer extends UntypedServiceImplementation {
+  getRecipe: handleUnaryCall<RecipeQuery, Recipe>;
+  queryRecipes: handleUnaryCall<RecipeQuery, RecipeList>;
+  postRecipe: handleUnaryCall<Recipe, PostRecipeResponse>;
+}
+
+export interface RecipeStoreClient extends Client {
+  getRecipe(
+    request: RecipeQuery,
+    callback: (error: ServiceError | null, response: Recipe) => void
+  ): ClientUnaryCall;
+  getRecipe(
+    request: RecipeQuery,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: Recipe) => void
+  ): ClientUnaryCall;
+  getRecipe(
+    request: RecipeQuery,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: Recipe) => void
+  ): ClientUnaryCall;
+  queryRecipes(
+    request: RecipeQuery,
+    callback: (error: ServiceError | null, response: RecipeList) => void
+  ): ClientUnaryCall;
+  queryRecipes(
+    request: RecipeQuery,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: RecipeList) => void
+  ): ClientUnaryCall;
+  queryRecipes(
+    request: RecipeQuery,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: RecipeList) => void
+  ): ClientUnaryCall;
+  postRecipe(
+    request: Recipe,
+    callback: (error: ServiceError | null, response: PostRecipeResponse) => void
+  ): ClientUnaryCall;
+  postRecipe(
+    request: Recipe,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: PostRecipeResponse) => void
+  ): ClientUnaryCall;
+  postRecipe(
+    request: Recipe,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: PostRecipeResponse) => void
+  ): ClientUnaryCall;
+}
+
+export const RecipeStoreClient = (makeGenericClientConstructor(
+  RecipeStoreService,
+  "RecipeStore"
+) as unknown) as {
+  new (
+    address: string,
+    credentials: ChannelCredentials,
+    options?: Partial<ChannelOptions>
+  ): RecipeStoreClient;
+}
+
+type Builtin =
+  | Date
+  | Function
+  | Uint8Array
+  | string
+  | number
+  | boolean
+  | undefined;
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Array<infer U>

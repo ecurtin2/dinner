@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-package Recipes;
 
 message Ingredient {
   string name = 1;
@@ -23,4 +22,22 @@ message Recipe {
 
 message RecipeList {
  repeated Recipe recipes = 1;
+}
+
+message RecipeQuery {
+  string id = 1;
+}
+
+message PostRecipeResponse {
+  enum Status {
+    SUCCESS = 0;
+    FAIL = 1;
+  }
+  Status status = 1;
+}
+
+service RecipeStore {
+  rpc GetRecipe(RecipeQuery) returns (Recipe);
+  rpc QueryRecipes(RecipeQuery) returns (RecipeList);
+  rpc PostRecipe(Recipe) returns (PostRecipeResponse);
 }

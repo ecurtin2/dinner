@@ -5,22 +5,22 @@ services:
   server:
     build:
       context: server
+    command: ["python", "/src/server.py"]
     ports:
-    - 8000:8000
+    - 50051:50051
     restart: always
     volumes:
-    - ./server/:/site
+    - ./storage/:/storage
     environment:
-      - SQL_ENGINE=django.db.backends.postgresql
-      - SQL_DATABASE=hello_django_dev
+      - HOSTNAME=0.0.0.0
+      - PORT=50051
+      - STORAGE_DIR=/storage
       - SQL_USER=hello_django
       - SQL_PASSWORD=hello_django
       - SQL_HOST=db
       - SQL_PORT=5432
-      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1] 0.0.0.0
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
-    depends_on:
-      - db
+#    depends_on:
+#      - db
 
   db:
     build:
@@ -37,7 +37,7 @@ services:
       context: protobufs
     volumes:
       - ./frontend/src/messages:/build/typescript
-      - ./server/proto:/build/python
+      - ./server/src/proto:/build/python
 
   frontend:
     build:
