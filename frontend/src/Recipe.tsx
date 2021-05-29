@@ -96,7 +96,7 @@ function RecipeNotFound(id: string) {
 }
 
 function RecipesPage() {
-  let recipes: Recipe[] = getRecipes();
+
   const { id } = useParams<{ id: string }>();
   if (id) {
     let recipe = getRecipe(id);
@@ -106,7 +106,10 @@ function RecipesPage() {
       return SingleRecipePage(recipe);
     }
   } else {
-    return <RecipeCardGrid recipes={recipes} />;
+    let recipes: Promise<RecipeList> = getRecipes();
+    recipes.then(recipes => console.log(recipes));
+    return RecipeNotFound(id);
+//     return <RecipeCardGrid recipes={recipes} />;
   }
 }
 

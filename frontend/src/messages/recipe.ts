@@ -1,18 +1,8 @@
 /* eslint-disable */
 import Long from "long";
-import {
-  makeGenericClientConstructor,
-  ChannelCredentials,
-  ChannelOptions,
-  UntypedServiceImplementation,
-  handleUnaryCall,
-  Client,
-  ClientUnaryCall,
-  Metadata,
-  CallOptions,
-  ServiceError,
-} from "@grpc/grpc-js";
+import { grpc } from "@improbable-eng/grpc-web";
 import _m0 from "protobufjs/minimal";
+import { BrowserHeaders } from "browser-headers";
 
 export const protobufPackage = "";
 
@@ -26,12 +16,21 @@ export interface RecipeIngredient {
   unit: string;
 }
 
+export interface RecipeEmbedding {
+  salt: number;
+  fat: number;
+  acid: number;
+  head: number;
+  umami: number;
+}
+
 export interface Recipe {
   id: string;
   title: string;
   description: string;
   instructions: string;
   teaserImage: string;
+  embedding: RecipeEmbedding | undefined;
   ingredients: RecipeIngredient[];
 }
 
@@ -44,43 +43,7 @@ export interface RecipeQuery {
 }
 
 export interface PostRecipeResponse {
-  status: PostRecipeResponse_Status;
-}
-
-export enum PostRecipeResponse_Status {
-  SUCCESS = 0,
-  FAIL = 1,
-  UNRECOGNIZED = -1,
-}
-
-export function postRecipeResponse_StatusFromJSON(
-  object: any
-): PostRecipeResponse_Status {
-  switch (object) {
-    case 0:
-    case "SUCCESS":
-      return PostRecipeResponse_Status.SUCCESS;
-    case 1:
-    case "FAIL":
-      return PostRecipeResponse_Status.FAIL;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return PostRecipeResponse_Status.UNRECOGNIZED;
-  }
-}
-
-export function postRecipeResponse_StatusToJSON(
-  object: PostRecipeResponse_Status
-): string {
-  switch (object) {
-    case PostRecipeResponse_Status.SUCCESS:
-      return "SUCCESS";
-    case PostRecipeResponse_Status.FAIL:
-      return "FAIL";
-    default:
-      return "UNKNOWN";
-  }
+  recipeId: string;
 }
 
 const baseIngredient: object = { name: "" };
@@ -233,6 +196,138 @@ export const RecipeIngredient = {
   },
 };
 
+const baseRecipeEmbedding: object = {
+  salt: 0,
+  fat: 0,
+  acid: 0,
+  head: 0,
+  umami: 0,
+};
+
+export const RecipeEmbedding = {
+  encode(
+    message: RecipeEmbedding,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.salt !== 0) {
+      writer.uint32(13).float(message.salt);
+    }
+    if (message.fat !== 0) {
+      writer.uint32(21).float(message.fat);
+    }
+    if (message.acid !== 0) {
+      writer.uint32(29).float(message.acid);
+    }
+    if (message.head !== 0) {
+      writer.uint32(37).float(message.head);
+    }
+    if (message.umami !== 0) {
+      writer.uint32(45).float(message.umami);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): RecipeEmbedding {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseRecipeEmbedding } as RecipeEmbedding;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.salt = reader.float();
+          break;
+        case 2:
+          message.fat = reader.float();
+          break;
+        case 3:
+          message.acid = reader.float();
+          break;
+        case 4:
+          message.head = reader.float();
+          break;
+        case 5:
+          message.umami = reader.float();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RecipeEmbedding {
+    const message = { ...baseRecipeEmbedding } as RecipeEmbedding;
+    if (object.salt !== undefined && object.salt !== null) {
+      message.salt = Number(object.salt);
+    } else {
+      message.salt = 0;
+    }
+    if (object.fat !== undefined && object.fat !== null) {
+      message.fat = Number(object.fat);
+    } else {
+      message.fat = 0;
+    }
+    if (object.acid !== undefined && object.acid !== null) {
+      message.acid = Number(object.acid);
+    } else {
+      message.acid = 0;
+    }
+    if (object.head !== undefined && object.head !== null) {
+      message.head = Number(object.head);
+    } else {
+      message.head = 0;
+    }
+    if (object.umami !== undefined && object.umami !== null) {
+      message.umami = Number(object.umami);
+    } else {
+      message.umami = 0;
+    }
+    return message;
+  },
+
+  toJSON(message: RecipeEmbedding): unknown {
+    const obj: any = {};
+    message.salt !== undefined && (obj.salt = message.salt);
+    message.fat !== undefined && (obj.fat = message.fat);
+    message.acid !== undefined && (obj.acid = message.acid);
+    message.head !== undefined && (obj.head = message.head);
+    message.umami !== undefined && (obj.umami = message.umami);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<RecipeEmbedding>): RecipeEmbedding {
+    const message = { ...baseRecipeEmbedding } as RecipeEmbedding;
+    if (object.salt !== undefined && object.salt !== null) {
+      message.salt = object.salt;
+    } else {
+      message.salt = 0;
+    }
+    if (object.fat !== undefined && object.fat !== null) {
+      message.fat = object.fat;
+    } else {
+      message.fat = 0;
+    }
+    if (object.acid !== undefined && object.acid !== null) {
+      message.acid = object.acid;
+    } else {
+      message.acid = 0;
+    }
+    if (object.head !== undefined && object.head !== null) {
+      message.head = object.head;
+    } else {
+      message.head = 0;
+    }
+    if (object.umami !== undefined && object.umami !== null) {
+      message.umami = object.umami;
+    } else {
+      message.umami = 0;
+    }
+    return message;
+  },
+};
+
 const baseRecipe: object = {
   id: "",
   title: "",
@@ -261,8 +356,14 @@ export const Recipe = {
     if (message.teaserImage !== "") {
       writer.uint32(42).string(message.teaserImage);
     }
+    if (message.embedding !== undefined) {
+      RecipeEmbedding.encode(
+        message.embedding,
+        writer.uint32(50).fork()
+      ).ldelim();
+    }
     for (const v of message.ingredients) {
-      RecipeIngredient.encode(v!, writer.uint32(50).fork()).ldelim();
+      RecipeIngredient.encode(v!, writer.uint32(58).fork()).ldelim();
     }
     return writer;
   },
@@ -291,6 +392,9 @@ export const Recipe = {
           message.teaserImage = reader.string();
           break;
         case 6:
+          message.embedding = RecipeEmbedding.decode(reader, reader.uint32());
+          break;
+        case 7:
           message.ingredients.push(
             RecipeIngredient.decode(reader, reader.uint32())
           );
@@ -331,6 +435,11 @@ export const Recipe = {
     } else {
       message.teaserImage = "";
     }
+    if (object.embedding !== undefined && object.embedding !== null) {
+      message.embedding = RecipeEmbedding.fromJSON(object.embedding);
+    } else {
+      message.embedding = undefined;
+    }
     if (object.ingredients !== undefined && object.ingredients !== null) {
       for (const e of object.ingredients) {
         message.ingredients.push(RecipeIngredient.fromJSON(e));
@@ -349,6 +458,10 @@ export const Recipe = {
       (obj.instructions = message.instructions);
     message.teaserImage !== undefined &&
       (obj.teaserImage = message.teaserImage);
+    message.embedding !== undefined &&
+      (obj.embedding = message.embedding
+        ? RecipeEmbedding.toJSON(message.embedding)
+        : undefined);
     if (message.ingredients) {
       obj.ingredients = message.ingredients.map((e) =>
         e ? RecipeIngredient.toJSON(e) : undefined
@@ -386,6 +499,11 @@ export const Recipe = {
       message.teaserImage = object.teaserImage;
     } else {
       message.teaserImage = "";
+    }
+    if (object.embedding !== undefined && object.embedding !== null) {
+      message.embedding = RecipeEmbedding.fromPartial(object.embedding);
+    } else {
+      message.embedding = undefined;
     }
     if (object.ingredients !== undefined && object.ingredients !== null) {
       for (const e of object.ingredients) {
@@ -521,15 +639,15 @@ export const RecipeQuery = {
   },
 };
 
-const basePostRecipeResponse: object = { status: 0 };
+const basePostRecipeResponse: object = { recipeId: "" };
 
 export const PostRecipeResponse = {
   encode(
     message: PostRecipeResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
-    if (message.status !== 0) {
-      writer.uint32(8).int32(message.status);
+    if (message.recipeId !== "") {
+      writer.uint32(10).string(message.recipeId);
     }
     return writer;
   },
@@ -542,7 +660,7 @@ export const PostRecipeResponse = {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1:
-          message.status = reader.int32() as any;
+          message.recipeId = reader.string();
           break;
         default:
           reader.skipType(tag & 7);
@@ -554,131 +672,228 @@ export const PostRecipeResponse = {
 
   fromJSON(object: any): PostRecipeResponse {
     const message = { ...basePostRecipeResponse } as PostRecipeResponse;
-    if (object.status !== undefined && object.status !== null) {
-      message.status = postRecipeResponse_StatusFromJSON(object.status);
+    if (object.recipeId !== undefined && object.recipeId !== null) {
+      message.recipeId = String(object.recipeId);
     } else {
-      message.status = 0;
+      message.recipeId = "";
     }
     return message;
   },
 
   toJSON(message: PostRecipeResponse): unknown {
     const obj: any = {};
-    message.status !== undefined &&
-      (obj.status = postRecipeResponse_StatusToJSON(message.status));
+    message.recipeId !== undefined && (obj.recipeId = message.recipeId);
     return obj;
   },
 
   fromPartial(object: DeepPartial<PostRecipeResponse>): PostRecipeResponse {
     const message = { ...basePostRecipeResponse } as PostRecipeResponse;
-    if (object.status !== undefined && object.status !== null) {
-      message.status = object.status;
+    if (object.recipeId !== undefined && object.recipeId !== null) {
+      message.recipeId = object.recipeId;
     } else {
-      message.status = 0;
+      message.recipeId = "";
     }
     return message;
   },
 };
 
-export const RecipeStoreService = {
-  getRecipe: {
-    path: "/RecipeStore/GetRecipe",
-    requestStream: false,
-    responseStream: false,
-    requestSerialize: (value: RecipeQuery) =>
-      Buffer.from(RecipeQuery.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => RecipeQuery.decode(value),
-    responseSerialize: (value: Recipe) =>
-      Buffer.from(Recipe.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => Recipe.decode(value),
-  },
-  queryRecipes: {
-    path: "/RecipeStore/QueryRecipes",
-    requestStream: false,
-    responseStream: false,
-    requestSerialize: (value: RecipeQuery) =>
-      Buffer.from(RecipeQuery.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => RecipeQuery.decode(value),
-    responseSerialize: (value: RecipeList) =>
-      Buffer.from(RecipeList.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => RecipeList.decode(value),
-  },
-  postRecipe: {
-    path: "/RecipeStore/PostRecipe",
-    requestStream: false,
-    responseStream: false,
-    requestSerialize: (value: Recipe) =>
-      Buffer.from(Recipe.encode(value).finish()),
-    requestDeserialize: (value: Buffer) => Recipe.decode(value),
-    responseSerialize: (value: PostRecipeResponse) =>
-      Buffer.from(PostRecipeResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer) => PostRecipeResponse.decode(value),
-  },
-} as const;
-
-export interface RecipeStoreServer extends UntypedServiceImplementation {
-  getRecipe: handleUnaryCall<RecipeQuery, Recipe>;
-  queryRecipes: handleUnaryCall<RecipeQuery, RecipeList>;
-  postRecipe: handleUnaryCall<Recipe, PostRecipeResponse>;
+export interface RecipeStore {
+  GetRecipe(
+    request: DeepPartial<RecipeQuery>,
+    metadata?: grpc.Metadata
+  ): Promise<Recipe>;
+  QueryRecipes(
+    request: DeepPartial<RecipeQuery>,
+    metadata?: grpc.Metadata
+  ): Promise<RecipeList>;
+  PostRecipe(
+    request: DeepPartial<Recipe>,
+    metadata?: grpc.Metadata
+  ): Promise<PostRecipeResponse>;
 }
 
-export interface RecipeStoreClient extends Client {
-  getRecipe(
-    request: RecipeQuery,
-    callback: (error: ServiceError | null, response: Recipe) => void
-  ): ClientUnaryCall;
-  getRecipe(
-    request: RecipeQuery,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: Recipe) => void
-  ): ClientUnaryCall;
-  getRecipe(
-    request: RecipeQuery,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: Recipe) => void
-  ): ClientUnaryCall;
-  queryRecipes(
-    request: RecipeQuery,
-    callback: (error: ServiceError | null, response: RecipeList) => void
-  ): ClientUnaryCall;
-  queryRecipes(
-    request: RecipeQuery,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: RecipeList) => void
-  ): ClientUnaryCall;
-  queryRecipes(
-    request: RecipeQuery,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: RecipeList) => void
-  ): ClientUnaryCall;
-  postRecipe(
-    request: Recipe,
-    callback: (error: ServiceError | null, response: PostRecipeResponse) => void
-  ): ClientUnaryCall;
-  postRecipe(
-    request: Recipe,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: PostRecipeResponse) => void
-  ): ClientUnaryCall;
-  postRecipe(
-    request: Recipe,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: PostRecipeResponse) => void
-  ): ClientUnaryCall;
+export class RecipeStoreClientImpl implements RecipeStore {
+  private readonly rpc: Rpc;
+
+  constructor(rpc: Rpc) {
+    this.rpc = rpc;
+  }
+
+  GetRecipe(
+    request: DeepPartial<RecipeQuery>,
+    metadata?: grpc.Metadata
+  ): Promise<Recipe> {
+    return this.rpc.unary(
+      RecipeStoreGetRecipeDesc,
+      RecipeQuery.fromPartial(request),
+      metadata
+    );
+  }
+
+  QueryRecipes(
+    request: DeepPartial<RecipeQuery>,
+    metadata?: grpc.Metadata
+  ): Promise<RecipeList> {
+    return this.rpc.unary(
+      RecipeStoreQueryRecipesDesc,
+      RecipeQuery.fromPartial(request),
+      metadata
+    );
+  }
+
+  PostRecipe(
+    request: DeepPartial<Recipe>,
+    metadata?: grpc.Metadata
+  ): Promise<PostRecipeResponse> {
+    return this.rpc.unary(
+      RecipeStorePostRecipeDesc,
+      Recipe.fromPartial(request),
+      metadata
+    );
+  }
 }
 
-export const RecipeStoreClient = (makeGenericClientConstructor(
-  RecipeStoreService,
-  "RecipeStore"
-) as unknown) as {
-  new (
-    address: string,
-    credentials: ChannelCredentials,
-    options?: Partial<ChannelOptions>
-  ): RecipeStoreClient;
+export const RecipeStoreDesc = {
+  serviceName: "RecipeStore",
+};
+
+export const RecipeStoreGetRecipeDesc: UnaryMethodDefinitionish = {
+  methodName: "GetRecipe",
+  service: RecipeStoreDesc,
+  requestStream: false,
+  responseStream: false,
+  requestType: {
+    serializeBinary() {
+      return RecipeQuery.encode(this).finish();
+    },
+  } as any,
+  responseType: {
+    deserializeBinary(data: Uint8Array) {
+      return {
+        ...Recipe.decode(data),
+        toObject() {
+          return this;
+        },
+      };
+    },
+  } as any,
+};
+
+export const RecipeStoreQueryRecipesDesc: UnaryMethodDefinitionish = {
+  methodName: "QueryRecipes",
+  service: RecipeStoreDesc,
+  requestStream: false,
+  responseStream: false,
+  requestType: {
+    serializeBinary() {
+      return RecipeQuery.encode(this).finish();
+    },
+  } as any,
+  responseType: {
+    deserializeBinary(data: Uint8Array) {
+      return {
+        ...RecipeList.decode(data),
+        toObject() {
+          return this;
+        },
+      };
+    },
+  } as any,
+};
+
+export const RecipeStorePostRecipeDesc: UnaryMethodDefinitionish = {
+  methodName: "PostRecipe",
+  service: RecipeStoreDesc,
+  requestStream: false,
+  responseStream: false,
+  requestType: {
+    serializeBinary() {
+      return Recipe.encode(this).finish();
+    },
+  } as any,
+  responseType: {
+    deserializeBinary(data: Uint8Array) {
+      return {
+        ...PostRecipeResponse.decode(data),
+        toObject() {
+          return this;
+        },
+      };
+    },
+  } as any,
+};
+
+interface UnaryMethodDefinitionishR
+  extends grpc.UnaryMethodDefinition<any, any> {
+  requestStream: any;
+  responseStream: any;
+}
+
+type UnaryMethodDefinitionish = UnaryMethodDefinitionishR;
+
+interface Rpc {
+  unary<T extends UnaryMethodDefinitionish>(
+    methodDesc: T,
+    request: any,
+    metadata: grpc.Metadata | undefined
+  ): Promise<any>;
+}
+
+export class GrpcWebImpl {
+  private host: string;
+  private options: {
+    transport?: grpc.TransportFactory;
+
+    debug?: boolean;
+    metadata?: grpc.Metadata;
+  };
+
+  constructor(
+    host: string,
+    options: {
+      transport?: grpc.TransportFactory;
+
+      debug?: boolean;
+      metadata?: grpc.Metadata;
+    }
+  ) {
+    this.host = host;
+    this.options = options;
+  }
+
+  unary<T extends UnaryMethodDefinitionish>(
+    methodDesc: T,
+    _request: any,
+    metadata: grpc.Metadata | undefined
+  ): Promise<any> {
+    const request = { ..._request, ...methodDesc.requestType };
+    const maybeCombinedMetadata =
+      metadata && this.options.metadata
+        ? new BrowserHeaders({
+            ...this.options?.metadata.headersMap,
+            ...metadata?.headersMap,
+          })
+        : metadata || this.options.metadata;
+    return new Promise((resolve, reject) => {
+      grpc.unary(methodDesc, {
+        request,
+        host: this.host,
+        metadata: maybeCombinedMetadata,
+        transport: this.options.transport,
+        debug: this.options.debug,
+        onEnd: function (response) {
+          if (response.status === grpc.Code.OK) {
+            resolve(response.message);
+          } else {
+            const err = new Error(response.statusMessage) as any;
+            err.code = response.status;
+            err.metadata = response.trailers;
+            reject(err);
+          }
+        },
+      });
+    });
+  }
 }
 
 type Builtin =

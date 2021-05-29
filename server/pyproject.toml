@@ -1,19 +1,17 @@
 [tool.poetry]
 name = "server"
 version = "0.1.0"
-description = ""
-authors = ["ecurtin2 <ecurtin2@illinois.edu>"]
+description = "Backend service for storing recipes"
+authors = ["me"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 betterproto = "2.0.0b3"
-grpclib = "^0.4.1"
-djangorestframework = "^3.12.4"
-psycopg2 = "^2.8.6"
+
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.3"
-black = "^21.4b1"
+black = "^21.5b1"
+pytest = "isort"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

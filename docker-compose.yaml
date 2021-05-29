@@ -6,41 +6,40 @@ services:
     build:
       context: server
     working_dir: /src
-    command: ["bash", "-c", "python /src/manage.py migrate && python /src/manage.py runserver 0.0.0.0:8000"]
     ports:
-    - 8000:8000
+    - 9090:9090
     restart: always
+    command: ["python", "main.py"]
+    environment:
+      - DINNER_STORAGE_DIR=/storage
+      - SERVICE_HOST=0.0.0.0
+      - SERVICE_PORT=9090
+      - RECIPES_DIR=/storage
     volumes:
     - ./storage/:/storage
-    environment:
-#      - HOSTNAME=0.0.0.0  grpc only
-#      - PORT=50051        grpc only
-#      - STORAGE_DIR=/storage grpc only
-      - SQL_DATABASE=hello_django_dev
-      - SQL_ENGINE=django.db.backends.postgresql
-      - SQL_USER=hello_django
-      - SQL_PASSWORD=hello_django
-      - SQL_HOST=db
-      - SQL_PORT=5432
-      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1] 0.0.0.0
-      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+    - ./server/src:/src
     depends_on:
-      - db
+      - protobufs
+
+  envoy:
+    build:
+      context: envoy
+    ports:
+      - "8080:8080"
+    links:
+      - server
 
   db:
     build:
       context: database
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=hello_django
-      - POSTGRES_PASSWORD=hello_django
-      - POSTGRES_DB=hello_django_dev
+      - ./storage/postgres_data:/var/lib/postgresql/data/
 
   protobufs:
     build:
       context: protobufs
     volumes:
+      - ./protobufs/recipe.proto:/recipe.proto
       - ./frontend/src/messages:/build/typescript
       - ./server/src/proto:/build/python
 
@@ -51,5 +50,3 @@ services:
       - ./frontend:/app
     ports:
       - 3001:3000
-volumes:
-  postgres_data:

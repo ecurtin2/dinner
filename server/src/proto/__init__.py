@@ -9,11 +9,6 @@ from betterproto.grpc.grpclib_server import ServiceBase
 import grpclib
 
 
-class PostRecipeResponseStatus(betterproto.Enum):
-    SUCCESS = 0
-    FAIL = 1
-
-
 @dataclass(eq=False, repr=False)
 class Ingredient(betterproto.Message):
     name: str = betterproto.string_field(1)
@@ -27,13 +22,23 @@ class RecipeIngredient(betterproto.Message):
 
 
 @dataclass(eq=False, repr=False)
+class RecipeEmbedding(betterproto.Message):
+    salt: float = betterproto.float_field(1)
+    fat: float = betterproto.float_field(2)
+    acid: float = betterproto.float_field(3)
+    head: float = betterproto.float_field(4)
+    umami: float = betterproto.float_field(5)
+
+
+@dataclass(eq=False, repr=False)
 class Recipe(betterproto.Message):
     id: str = betterproto.string_field(1)
     title: str = betterproto.string_field(2)
     description: str = betterproto.string_field(3)
     instructions: str = betterproto.string_field(4)
     teaser_image: str = betterproto.string_field(5)
-    ingredients: List["RecipeIngredient"] = betterproto.message_field(6)
+    embedding: "RecipeEmbedding" = betterproto.message_field(6)
+    ingredients: List["RecipeIngredient"] = betterproto.message_field(7)
 
 
 @dataclass(eq=False, repr=False)
@@ -48,7 +53,7 @@ class RecipeQuery(betterproto.Message):
 
 @dataclass(eq=False, repr=False)
 class PostRecipeResponse(betterproto.Message):
-    status: "PostRecipeResponseStatus" = betterproto.enum_field(1)
+    recipe_id: str = betterproto.string_field(1)
 
 
 class RecipeStoreStub(betterproto.ServiceStub):
@@ -74,6 +79,7 @@ class RecipeStoreStub(betterproto.ServiceStub):
         description: str = "",
         instructions: str = "",
         teaser_image: str = "",
+        embedding: "RecipeEmbedding" = None,
         ingredients: Optional[List["RecipeIngredient"]] = None,
     ) -> "PostRecipeResponse":
         ingredients = ingredients or []
@@ -84,6 +90,8 @@ class RecipeStoreStub(betterproto.ServiceStub):
         request.description = description
         request.instructions = instructions
         request.teaser_image = teaser_image
+        if embedding is not None:
+            request.embedding = embedding
         if ingredients is not None:
             request.ingredients = ingredients
 
@@ -106,6 +114,7 @@ class RecipeStoreBase(ServiceBase):
         description: str,
         instructions: str,
         teaser_image: str,
+        embedding: "RecipeEmbedding",
         ingredients: Optional[List["RecipeIngredient"]],
     ) -> "PostRecipeResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
@@ -139,6 +148,7 @@ class RecipeStoreBase(ServiceBase):
             "description": request.description,
             "instructions": request.instructions,
             "teaser_image": request.teaser_image,
+            "embedding": request.embedding,
             "ingredients": request.ingredients,
         }
 

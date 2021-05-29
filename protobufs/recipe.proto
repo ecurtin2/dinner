@@ -11,13 +11,23 @@ message RecipeIngredient {
     string unit = 3;
 }
 
+message RecipeEmbedding {
+  float salt = 1;
+  float fat = 2;
+  float acid = 3;
+  float head = 4;
+  float umami = 5;
+
+}
+
 message Recipe {
   string id = 1;
   string title = 2;
   string description = 3;
   string instructions = 4;
   string teaserImage = 5;
-  repeated RecipeIngredient ingredients = 6;
+  RecipeEmbedding embedding = 6;
+  repeated RecipeIngredient ingredients = 7;
 }
 
 message RecipeList {
@@ -29,11 +39,7 @@ message RecipeQuery {
 }
 
 message PostRecipeResponse {
-  enum Status {
-    SUCCESS = 0;
-    FAIL = 1;
-  }
-  Status status = 1;
+  string recipe_id = 1;
 }
 
 service RecipeStore {

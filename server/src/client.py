@@ -5,13 +5,13 @@ from grpclib.client import Channel
 
 
 async def main():
-    channel = Channel(host="127.0.0.1", port=50051)
+    channel = Channel(host="127.0.0.1", port=9090)
     service = RecipeStoreStub(channel)
-    response = await service.get_recipe(id="3")
+    response = await service.post_recipe()
     print(response)
     # don't forget to close the channel when done!
-    # response = await service.post_recipe(id="1", title="Chicky chicky", description="hi dude", instructions="sup")
-    # response = await service.post_recipe(id="2", title="Stinky stinky", description="hi guy", instructions="do the thing")
+    response = await service.post_recipe(title="Chicky chicky", description="hi dude", instructions="sup")
+    response = await service.post_recipe(title="Stinky stinky", description="hi guy", instructions="do the thing")
     response = await service.query_recipes(id="*")
     print(response)
     channel.close()
