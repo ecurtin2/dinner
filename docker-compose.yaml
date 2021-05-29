@@ -18,8 +18,6 @@ services:
     volumes:
     - ./storage/:/storage
     - ./server/src:/src
-    depends_on:
-      - protobufs
 
   envoy:
     build:
@@ -29,11 +27,12 @@ services:
     links:
       - server
 
-  db:
-    build:
-      context: database
-    volumes:
-      - ./storage/postgres_data:/var/lib/postgresql/data/
+# Don't actually use this right now but keep it around just in case
+#  db:
+#    build:
+#      context: database
+#    volumes:
+#      - ./storage/postgres_data:/var/lib/postgresql/data/
 
   protobufs:
     build:
