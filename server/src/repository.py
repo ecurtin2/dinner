@@ -4,18 +4,26 @@ import config
 from proto import Recipe
 
 
+def recipe_path(recipe_id: str) -> Path:
+    return config.storage_dir / f"recipes/id={recipe_id}.proto"
+
+
 def write(p: Path, b: bytes):
     p.parent.mkdir(exist_ok=True, parents=True)
     p.write_bytes(b)
 
 
 def save(r: Recipe):
-    write(config.storage_dir / f"recipes/id={r.id}.proto", bytes(r))
+    write(recipe_path(r.id), bytes(r))
 
 
 def load(recipe_id: str) -> Recipe:
-    b = (config.storage_dir / f"recipes/id={recipe_id}.proto").read_bytes()
+    b = recipe_path(recipe_id).read_bytes()
     return Recipe().parse(b)
+
+
+def delete(recipe_id: str):
+    recipe_path(recipe_id).unlink(missing_ok=True)
 
 
 def load_where(id: str = "*") -> List[Recipe]:

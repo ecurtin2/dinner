@@ -67,6 +67,16 @@ class GetRecipyByIdResponse(betterproto.Message):
     recipe: "Recipe" = betterproto.message_field(2)
 
 
+@dataclass(eq=False, repr=False)
+class DeleteRecipeByIdRequest(betterproto.Message):
+    recipe_id: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class DeleteRecipeByIdResponse(betterproto.Message):
+    pass
+
+
 class RecipeStoreStub(betterproto.ServiceStub):
     async def get_recipe_by_id(self, *, recipe_id: str = "") -> "GetRecipyByIdResponse":
 
@@ -75,6 +85,17 @@ class RecipeStoreStub(betterproto.ServiceStub):
 
         return await self._unary_unary(
             "/RecipeStore/GetRecipeById", request, GetRecipyByIdResponse
+        )
+
+    async def delete_recipe_by_id(
+        self, *, recipe_id: str = ""
+    ) -> "DeleteRecipeByIdResponse":
+
+        request = DeleteRecipeByIdRequest()
+        request.recipe_id = recipe_id
+
+        return await self._unary_unary(
+            "/RecipeStore/DeleteRecipeById", request, DeleteRecipeByIdResponse
         )
 
     async def query_recipes(self, *, id: str = "") -> "RecipeList":
@@ -117,6 +138,9 @@ class RecipeStoreBase(ServiceBase):
     async def get_recipe_by_id(self, recipe_id: str) -> "GetRecipyByIdResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
+    async def delete_recipe_by_id(self, recipe_id: str) -> "DeleteRecipeByIdResponse":
+        raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
+
     async def query_recipes(self, id: str) -> "RecipeList":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
@@ -140,6 +164,16 @@ class RecipeStoreBase(ServiceBase):
         }
 
         response = await self.get_recipe_by_id(**request_kwargs)
+        await stream.send_message(response)
+
+    async def __rpc_delete_recipe_by_id(self, stream: grpclib.server.Stream) -> None:
+        request = await stream.recv_message()
+
+        request_kwargs = {
+            "recipe_id": request.recipe_id,
+        }
+
+        response = await self.delete_recipe_by_id(**request_kwargs)
         await stream.send_message(response)
 
     async def __rpc_query_recipes(self, stream: grpclib.server.Stream) -> None:
@@ -175,6 +209,12 @@ class RecipeStoreBase(ServiceBase):
                 grpclib.const.Cardinality.UNARY_UNARY,
                 GetRecipyByIdRequest,
                 GetRecipyByIdResponse,
+            ),
+            "/RecipeStore/DeleteRecipeById": grpclib.const.Handler(
+                self.__rpc_delete_recipe_by_id,
+                grpclib.const.Cardinality.UNARY_UNARY,
+                DeleteRecipeByIdRequest,
+                DeleteRecipeByIdResponse,
             ),
             "/RecipeStore/QueryRecipes": grpclib.const.Handler(
                 self.__rpc_query_recipes,

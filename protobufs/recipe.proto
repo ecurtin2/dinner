@@ -51,8 +51,17 @@ message GetRecipyByIdResponse {
   Recipe recipe = 2;
 }
 
+message DeleteRecipeByIdRequest {
+  string recipe_id = 1;
+}
+
+message DeleteRecipeByIdResponse {
+}
+
+
 service RecipeStore {
   rpc GetRecipeById(GetRecipyByIdRequest) returns (GetRecipyByIdResponse);
+  rpc DeleteRecipeById(DeleteRecipeByIdRequest) returns (DeleteRecipeByIdResponse);
   rpc QueryRecipes(RecipeQuery) returns (RecipeList);
   rpc PostRecipe(Recipe) returns (PostRecipeResponse);
 }

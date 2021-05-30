@@ -9,7 +9,7 @@ services:
     ports:
     - 9090:9090
     restart: always
-    command: ["python", "main.py"]
+    command: ["python", "server.py"]
     environment:
       - DINNER_STORAGE_DIR=/storage
       - SERVICE_HOST=0.0.0.0

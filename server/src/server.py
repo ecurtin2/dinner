@@ -9,6 +9,7 @@ from proto import (
     RecipeIngredient,
     RecipeList,
     GetRecipyByIdResponse,
+DeleteRecipeByIdResponse,
 RecipeEmbedding,
 )
 from grpclib.server import Server
@@ -17,15 +18,30 @@ from typing import Optional, List
 
 import logging
 
-from repository import save, load_where, load
+from repository import save, load_where, load, delete
 
 logger = logging.getLogger(__name__)
 
 
-class RecipeStoreService(RecipeStoreBase):
-    async def get_recipe_by_id(self, recipe_id: str) -> "GetRecipyByIdResponse":
-        logger.info(f"{__class__}.get_recipe id={id}")
+def shorten(s: str, maxlen: int) -> str:
+    if len(s) > maxlen:
+        return f"{s[:maxlen]}..."
+    return s
 
+
+def log_method(m):
+    def wrapped(*args, **kwargs):
+        arg_str = ", ".join(shorten(str(a), 15) for a in args[1:])
+        kwarg_str = ", ".join(f"{k}={shorten(str(v), 15)}" for k, v in kwargs.items())
+        sep = ", " if arg_str else ""
+        logger.info(f"{m.__qualname__}({arg_str}{sep}{kwarg_str})")
+        return m(*args, **kwargs)
+    return wrapped
+
+
+class RecipeStoreService(RecipeStoreBase):
+    @log_method
+    async def get_recipe_by_id(self, recipe_id: str) -> "GetRecipyByIdResponse":
         was_found = False
         try:
             r = load(recipe_id=recipe_id)
@@ -34,11 +50,16 @@ class RecipeStoreService(RecipeStoreBase):
             r = Recipe()
         return GetRecipyByIdResponse(was_found, r)
 
-    async def query_recipes(self, id: str) -> "RecipeList":
-        logger.info(f"{__class__}.query_recipes id={id}")
-        recipes = load_where(id=id)
-        return RecipeList(recipes)
+    @log_method
+    async def delete_recipe_by_id(self, recipe_id: str) -> "DeleteRecipeByIdResponse":
+        delete(recipe_id=recipe_id)
+        return DeleteRecipeByIdResponse()
 
+    @log_method
+    async def query_recipes(self, id: str) -> "RecipeList":
+        return RecipeList(load_where(id=id))
+
+    @log_method
     async def post_recipe(
         self,
         *,

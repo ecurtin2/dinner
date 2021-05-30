@@ -55,6 +55,12 @@ export interface GetRecipyByIdResponse {
   recipe: Recipe | undefined;
 }
 
+export interface DeleteRecipeByIdRequest {
+  recipeId: string;
+}
+
+export interface DeleteRecipeByIdResponse {}
+
 const baseIngredient: object = { name: "" };
 
 export const Ingredient = {
@@ -848,11 +854,136 @@ export const GetRecipyByIdResponse = {
   },
 };
 
+const baseDeleteRecipeByIdRequest: object = { recipeId: "" };
+
+export const DeleteRecipeByIdRequest = {
+  encode(
+    message: DeleteRecipeByIdRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.recipeId !== "") {
+      writer.uint32(10).string(message.recipeId);
+    }
+    return writer;
+  },
+
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number
+  ): DeleteRecipeByIdRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseDeleteRecipeByIdRequest,
+    } as DeleteRecipeByIdRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.recipeId = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DeleteRecipeByIdRequest {
+    const message = {
+      ...baseDeleteRecipeByIdRequest,
+    } as DeleteRecipeByIdRequest;
+    if (object.recipeId !== undefined && object.recipeId !== null) {
+      message.recipeId = String(object.recipeId);
+    } else {
+      message.recipeId = "";
+    }
+    return message;
+  },
+
+  toJSON(message: DeleteRecipeByIdRequest): unknown {
+    const obj: any = {};
+    message.recipeId !== undefined && (obj.recipeId = message.recipeId);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<DeleteRecipeByIdRequest>
+  ): DeleteRecipeByIdRequest {
+    const message = {
+      ...baseDeleteRecipeByIdRequest,
+    } as DeleteRecipeByIdRequest;
+    if (object.recipeId !== undefined && object.recipeId !== null) {
+      message.recipeId = object.recipeId;
+    } else {
+      message.recipeId = "";
+    }
+    return message;
+  },
+};
+
+const baseDeleteRecipeByIdResponse: object = {};
+
+export const DeleteRecipeByIdResponse = {
+  encode(
+    _: DeleteRecipeByIdResponse,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    return writer;
+  },
+
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number
+  ): DeleteRecipeByIdResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = {
+      ...baseDeleteRecipeByIdResponse,
+    } as DeleteRecipeByIdResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(_: any): DeleteRecipeByIdResponse {
+    const message = {
+      ...baseDeleteRecipeByIdResponse,
+    } as DeleteRecipeByIdResponse;
+    return message;
+  },
+
+  toJSON(_: DeleteRecipeByIdResponse): unknown {
+    const obj: any = {};
+    return obj;
+  },
+
+  fromPartial(
+    _: DeepPartial<DeleteRecipeByIdResponse>
+  ): DeleteRecipeByIdResponse {
+    const message = {
+      ...baseDeleteRecipeByIdResponse,
+    } as DeleteRecipeByIdResponse;
+    return message;
+  },
+};
+
 export interface RecipeStore {
   GetRecipeById(
     request: DeepPartial<GetRecipyByIdRequest>,
     metadata?: grpc.Metadata
   ): Promise<GetRecipyByIdResponse>;
+  DeleteRecipeById(
+    request: DeepPartial<DeleteRecipeByIdRequest>,
+    metadata?: grpc.Metadata
+  ): Promise<DeleteRecipeByIdResponse>;
   QueryRecipes(
     request: DeepPartial<RecipeQuery>,
     metadata?: grpc.Metadata
@@ -877,6 +1008,17 @@ export class RecipeStoreClientImpl implements RecipeStore {
     return this.rpc.unary(
       RecipeStoreGetRecipeByIdDesc,
       GetRecipyByIdRequest.fromPartial(request),
+      metadata
+    );
+  }
+
+  DeleteRecipeById(
+    request: DeepPartial<DeleteRecipeByIdRequest>,
+    metadata?: grpc.Metadata
+  ): Promise<DeleteRecipeByIdResponse> {
+    return this.rpc.unary(
+      RecipeStoreDeleteRecipeByIdDesc,
+      DeleteRecipeByIdRequest.fromPartial(request),
       metadata
     );
   }
@@ -922,6 +1064,28 @@ export const RecipeStoreGetRecipeByIdDesc: UnaryMethodDefinitionish = {
     deserializeBinary(data: Uint8Array) {
       return {
         ...GetRecipyByIdResponse.decode(data),
+        toObject() {
+          return this;
+        },
+      };
+    },
+  } as any,
+};
+
+export const RecipeStoreDeleteRecipeByIdDesc: UnaryMethodDefinitionish = {
+  methodName: "DeleteRecipeById",
+  service: RecipeStoreDesc,
+  requestStream: false,
+  responseStream: false,
+  requestType: {
+    serializeBinary() {
+      return DeleteRecipeByIdRequest.encode(this).finish();
+    },
+  } as any,
+  responseType: {
+    deserializeBinary(data: Uint8Array) {
+      return {
+        ...DeleteRecipeByIdResponse.decode(data),
         toObject() {
           return this;
         },

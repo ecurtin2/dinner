@@ -20,6 +20,7 @@ async def main():
 
     should_be_not_found = await service.get_recipe_by_id(recipe_id="NOT_AN_ID")
     print(f"This should be false: {should_be_not_found.was_found}")
+
     channel.close()
 
 

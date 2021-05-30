@@ -106,6 +106,9 @@ const InnerForm = (props: FormikProps<Recipe>) => {
       <div className="grid grid-cols-2">
 
         <Form className="grid grid-cols-1 pl-10 pr-20">
+          <div className="text-primary font-semibold">
+            Recipe Unique ID: {props.values.id ? props.values.id: 'To be Determined'}
+          </div>
           <FieldLabel name="Title" />
           <Field className="w-1/2" name="title" type="text" />
 
