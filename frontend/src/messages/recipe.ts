@@ -46,6 +46,15 @@ export interface PostRecipeResponse {
   recipeId: string;
 }
 
+export interface GetRecipyByIdRequest {
+  recipeId: string;
+}
+
+export interface GetRecipyByIdResponse {
+  wasFound: boolean;
+  recipe: Recipe | undefined;
+}
+
 const baseIngredient: object = { name: "" };
 
 export const Ingredient = {
@@ -697,11 +706,153 @@ export const PostRecipeResponse = {
   },
 };
 
+const baseGetRecipyByIdRequest: object = { recipeId: "" };
+
+export const GetRecipyByIdRequest = {
+  encode(
+    message: GetRecipyByIdRequest,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.recipeId !== "") {
+      writer.uint32(10).string(message.recipeId);
+    }
+    return writer;
+  },
+
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number
+  ): GetRecipyByIdRequest {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseGetRecipyByIdRequest } as GetRecipyByIdRequest;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.recipeId = reader.string();
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetRecipyByIdRequest {
+    const message = { ...baseGetRecipyByIdRequest } as GetRecipyByIdRequest;
+    if (object.recipeId !== undefined && object.recipeId !== null) {
+      message.recipeId = String(object.recipeId);
+    } else {
+      message.recipeId = "";
+    }
+    return message;
+  },
+
+  toJSON(message: GetRecipyByIdRequest): unknown {
+    const obj: any = {};
+    message.recipeId !== undefined && (obj.recipeId = message.recipeId);
+    return obj;
+  },
+
+  fromPartial(object: DeepPartial<GetRecipyByIdRequest>): GetRecipyByIdRequest {
+    const message = { ...baseGetRecipyByIdRequest } as GetRecipyByIdRequest;
+    if (object.recipeId !== undefined && object.recipeId !== null) {
+      message.recipeId = object.recipeId;
+    } else {
+      message.recipeId = "";
+    }
+    return message;
+  },
+};
+
+const baseGetRecipyByIdResponse: object = { wasFound: false };
+
+export const GetRecipyByIdResponse = {
+  encode(
+    message: GetRecipyByIdResponse,
+    writer: _m0.Writer = _m0.Writer.create()
+  ): _m0.Writer {
+    if (message.wasFound === true) {
+      writer.uint32(8).bool(message.wasFound);
+    }
+    if (message.recipe !== undefined) {
+      Recipe.encode(message.recipe, writer.uint32(18).fork()).ldelim();
+    }
+    return writer;
+  },
+
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number
+  ): GetRecipyByIdResponse {
+    const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = { ...baseGetRecipyByIdResponse } as GetRecipyByIdResponse;
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          message.wasFound = reader.bool();
+          break;
+        case 2:
+          message.recipe = Recipe.decode(reader, reader.uint32());
+          break;
+        default:
+          reader.skipType(tag & 7);
+          break;
+      }
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GetRecipyByIdResponse {
+    const message = { ...baseGetRecipyByIdResponse } as GetRecipyByIdResponse;
+    if (object.wasFound !== undefined && object.wasFound !== null) {
+      message.wasFound = Boolean(object.wasFound);
+    } else {
+      message.wasFound = false;
+    }
+    if (object.recipe !== undefined && object.recipe !== null) {
+      message.recipe = Recipe.fromJSON(object.recipe);
+    } else {
+      message.recipe = undefined;
+    }
+    return message;
+  },
+
+  toJSON(message: GetRecipyByIdResponse): unknown {
+    const obj: any = {};
+    message.wasFound !== undefined && (obj.wasFound = message.wasFound);
+    message.recipe !== undefined &&
+      (obj.recipe = message.recipe ? Recipe.toJSON(message.recipe) : undefined);
+    return obj;
+  },
+
+  fromPartial(
+    object: DeepPartial<GetRecipyByIdResponse>
+  ): GetRecipyByIdResponse {
+    const message = { ...baseGetRecipyByIdResponse } as GetRecipyByIdResponse;
+    if (object.wasFound !== undefined && object.wasFound !== null) {
+      message.wasFound = object.wasFound;
+    } else {
+      message.wasFound = false;
+    }
+    if (object.recipe !== undefined && object.recipe !== null) {
+      message.recipe = Recipe.fromPartial(object.recipe);
+    } else {
+      message.recipe = undefined;
+    }
+    return message;
+  },
+};
+
 export interface RecipeStore {
-  GetRecipe(
-    request: DeepPartial<RecipeQuery>,
+  GetRecipeById(
+    request: DeepPartial<GetRecipyByIdRequest>,
     metadata?: grpc.Metadata
-  ): Promise<Recipe>;
+  ): Promise<GetRecipyByIdResponse>;
   QueryRecipes(
     request: DeepPartial<RecipeQuery>,
     metadata?: grpc.Metadata
@@ -719,13 +870,13 @@ export class RecipeStoreClientImpl implements RecipeStore {
     this.rpc = rpc;
   }
 
-  GetRecipe(
-    request: DeepPartial<RecipeQuery>,
+  GetRecipeById(
+    request: DeepPartial<GetRecipyByIdRequest>,
     metadata?: grpc.Metadata
-  ): Promise<Recipe> {
+  ): Promise<GetRecipyByIdResponse> {
     return this.rpc.unary(
-      RecipeStoreGetRecipeDesc,
-      RecipeQuery.fromPartial(request),
+      RecipeStoreGetRecipeByIdDesc,
+      GetRecipyByIdRequest.fromPartial(request),
       metadata
     );
   }
@@ -757,20 +908,20 @@ export const RecipeStoreDesc = {
   serviceName: "RecipeStore",
 };
 
-export const RecipeStoreGetRecipeDesc: UnaryMethodDefinitionish = {
-  methodName: "GetRecipe",
+export const RecipeStoreGetRecipeByIdDesc: UnaryMethodDefinitionish = {
+  methodName: "GetRecipeById",
   service: RecipeStoreDesc,
   requestStream: false,
   responseStream: false,
   requestType: {
     serializeBinary() {
-      return RecipeQuery.encode(this).finish();
+      return GetRecipyByIdRequest.encode(this).finish();
     },
   } as any,
   responseType: {
     deserializeBinary(data: Uint8Array) {
       return {
-        ...Recipe.decode(data),
+        ...GetRecipyByIdResponse.decode(data),
         toObject() {
           return this;
         },

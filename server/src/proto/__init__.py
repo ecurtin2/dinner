@@ -56,13 +56,26 @@ class PostRecipeResponse(betterproto.Message):
     recipe_id: str = betterproto.string_field(1)
 
 
+@dataclass(eq=False, repr=False)
+class GetRecipyByIdRequest(betterproto.Message):
+    recipe_id: str = betterproto.string_field(1)
+
+
+@dataclass(eq=False, repr=False)
+class GetRecipyByIdResponse(betterproto.Message):
+    was_found: bool = betterproto.bool_field(1)
+    recipe: "Recipe" = betterproto.message_field(2)
+
+
 class RecipeStoreStub(betterproto.ServiceStub):
-    async def get_recipe(self, *, id: str = "") -> "Recipe":
+    async def get_recipe_by_id(self, *, recipe_id: str = "") -> "GetRecipyByIdResponse":
 
-        request = RecipeQuery()
-        request.id = id
+        request = GetRecipyByIdRequest()
+        request.recipe_id = recipe_id
 
-        return await self._unary_unary("/RecipeStore/GetRecipe", request, Recipe)
+        return await self._unary_unary(
+            "/RecipeStore/GetRecipeById", request, GetRecipyByIdResponse
+        )
 
     async def query_recipes(self, *, id: str = "") -> "RecipeList":
 
@@ -101,7 +114,7 @@ class RecipeStoreStub(betterproto.ServiceStub):
 
 
 class RecipeStoreBase(ServiceBase):
-    async def get_recipe(self, id: str) -> "Recipe":
+    async def get_recipe_by_id(self, recipe_id: str) -> "GetRecipyByIdResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
     async def query_recipes(self, id: str) -> "RecipeList":
@@ -119,14 +132,14 @@ class RecipeStoreBase(ServiceBase):
     ) -> "PostRecipeResponse":
         raise grpclib.GRPCError(grpclib.const.Status.UNIMPLEMENTED)
 
-    async def __rpc_get_recipe(self, stream: grpclib.server.Stream) -> None:
+    async def __rpc_get_recipe_by_id(self, stream: grpclib.server.Stream) -> None:
         request = await stream.recv_message()
 
         request_kwargs = {
-            "id": request.id,
+            "recipe_id": request.recipe_id,
         }
 
-        response = await self.get_recipe(**request_kwargs)
+        response = await self.get_recipe_by_id(**request_kwargs)
         await stream.send_message(response)
 
     async def __rpc_query_recipes(self, stream: grpclib.server.Stream) -> None:
@@ -157,11 +170,11 @@ class RecipeStoreBase(ServiceBase):
 
     def __mapping__(self) -> Dict[str, grpclib.const.Handler]:
         return {
-            "/RecipeStore/GetRecipe": grpclib.const.Handler(
-                self.__rpc_get_recipe,
+            "/RecipeStore/GetRecipeById": grpclib.const.Handler(
+                self.__rpc_get_recipe_by_id,
                 grpclib.const.Cardinality.UNARY_UNARY,
-                RecipeQuery,
-                Recipe,
+                GetRecipyByIdRequest,
+                GetRecipyByIdResponse,
             ),
             "/RecipeStore/QueryRecipes": grpclib.const.Handler(
                 self.__rpc_query_recipes,

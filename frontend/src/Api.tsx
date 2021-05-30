@@ -1,5 +1,5 @@
 import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
-import { RecipeStoreClientImpl, Recipe, GrpcWebImpl, RecipeList } from "./messages/recipe";
+import { RecipeStoreClientImpl, Recipe, GrpcWebImpl, GetRecipyByIdResponse } from "./messages/recipe";
 import { grpc } from '@improbable-eng/grpc-web';
 
 const rpc = new GrpcWebImpl('http://localhost:8080', {
@@ -53,15 +53,23 @@ let RECIPE_REPOSITORY: Recipe[] = [
   }
 ];
 
-export async function getRecipes(): Promise<RecipeList> {
+export async function getRecipes(): Promise<Recipe[]> {
   console.log("[GET] recipes");
-  const recipes = await client.QueryRecipes({id: "*"});
-  return recipes
+  const r_list = await client.QueryRecipes({id: "*"});
+  return r_list.recipes;
 }
 
-export function getRecipe(id: string): Recipe | undefined {
+export function getRecipe(id: string): Promise<Recipe | undefined> {
   console.log("[GET] recipe/" + id);
-  return RECIPE_REPOSITORY.filter((r) => r.id === id)[0];
+  const response = client.GetRecipeById({recipeId: id})
+  const recipe: Promise<Recipe | undefined> = response.then(r => {
+      if (r.wasFound) {
+        return r.recipe;
+      } else {
+        return undefined;
+      }
+  })
+  return recipe
 }
 
 export function postRecipe(recipe: Recipe) {

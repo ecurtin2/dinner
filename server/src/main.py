@@ -8,6 +8,7 @@ from proto import (
     PostRecipeResponse,
     RecipeIngredient,
     RecipeList,
+    GetRecipyByIdResponse,
 RecipeEmbedding,
 )
 from grpclib.server import Server
@@ -16,15 +17,22 @@ from typing import Optional, List
 
 import logging
 
-from repository import save, load_where
+from repository import save, load_where, load
 
 logger = logging.getLogger(__name__)
 
 
 class RecipeStoreService(RecipeStoreBase):
-    async def get_recipe(self, id: str) -> "Recipe":
+    async def get_recipe_by_id(self, recipe_id: str) -> "GetRecipyByIdResponse":
         logger.info(f"{__class__}.get_recipe id={id}")
-        return Recipe(id=id)
+
+        was_found = False
+        try:
+            r = load(recipe_id=recipe_id)
+            was_found = True
+        except FileNotFoundError:
+            r = Recipe()
+        return GetRecipyByIdResponse(was_found, r)
 
     async def query_recipes(self, id: str) -> "RecipeList":
         logger.info(f"{__class__}.query_recipes id={id}")

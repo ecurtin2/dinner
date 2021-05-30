@@ -95,22 +95,36 @@ function RecipeNotFound(id: string) {
   );
 }
 
-function RecipesPage() {
-
-  const { id } = useParams<{ id: string }>();
-  if (id) {
-    let recipe = getRecipe(id);
-    if (recipe === undefined) {
+function RecipePage() {
+    const { id } = useParams<{ id: string }>();
+    const [recipe_to_render, set_recipe] = React.useState<Recipe | undefined>(undefined);
+    React.useEffect( () => {
+            const getmyrecipe = async () => {
+                await getRecipe(id).then(set_recipe);
+            };
+            getmyrecipe();
+        },
+        []
+    );
+    if (recipe_to_render === undefined) {
       return RecipeNotFound(id);
     } else {
-      return SingleRecipePage(recipe);
+      return SingleRecipePage(recipe_to_render);
     }
-  } else {
-    let recipes: Promise<RecipeList> = getRecipes();
-    recipes.then(recipes => console.log(recipes));
-    return RecipeNotFound(id);
-//     return <RecipeCardGrid recipes={recipes} />;
-  }
 }
 
-export { RecipeCardGrid, RecipeCard, SingleRecipePage,  RecipesPage };
+function MultiRecipePage() {
+    const default_r: Recipe[] = [];
+    const [recipes_to_render, set_recipes] = React.useState(default_r);
+    React.useEffect( () => {
+            const getmyrecipes = async () => {
+                await getRecipes().then(set_recipes);
+            };
+            getmyrecipes();
+        },
+        []
+    );
+    return <RecipeCardGrid recipes={recipes_to_render} />;
+}
+
+export { RecipeCardGrid, RecipeCard, SingleRecipePage, RecipePage, MultiRecipePage };

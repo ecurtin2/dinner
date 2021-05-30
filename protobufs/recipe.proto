@@ -42,8 +42,17 @@ message PostRecipeResponse {
   string recipe_id = 1;
 }
 
+message GetRecipyByIdRequest {
+  string recipe_id = 1;
+}
+
+message GetRecipyByIdResponse {
+  bool was_found = 1;
+  Recipe recipe = 2;
+}
+
 service RecipeStore {
-  rpc GetRecipe(RecipeQuery) returns (Recipe);
+  rpc GetRecipeById(GetRecipyByIdRequest) returns (GetRecipyByIdResponse);
   rpc QueryRecipes(RecipeQuery) returns (RecipeList);
   rpc PostRecipe(Recipe) returns (PostRecipeResponse);
 }

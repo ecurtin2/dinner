@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import "./App.css";
-import { RecipesPage } from "./Recipe";
+import { RecipePage, MultiRecipePage } from "./Recipe";
 import SubmitPage from "./Submit";
 
 function Home() {
@@ -30,10 +30,10 @@ function Navigation() {
             <SubmitPage />
           </Route>
           <Route path="/recipes/:id">
-            <RecipesPage />
+            <RecipePage />
           </Route>
           <Route path="/recipes">
-            <RecipesPage />
+            <MultiRecipePage />
           </Route>
           <Route path="/">
             <Home />
