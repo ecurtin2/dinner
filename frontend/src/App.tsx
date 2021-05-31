@@ -2,7 +2,8 @@ import React from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import "./App.css";
 import { RecipePage, MultiRecipePage } from "./Recipe";
-import SubmitPage from "./Submit";
+import { AdminRecipesPage } from "./Admin";
+import { EditRecipePage } from "./RecipeEditor";
 
 function Home() {
   return (
@@ -20,20 +21,23 @@ function Navigation() {
           <nav className="h-24 pt-5 text-xl content-center">
             <div className="float-left"><Link to="/">RecipeNator</Link></div>
             <div className="float-right">
-                <Link to="/submit" className="pl-12">Submit</Link>
+                <Link to="/my-recipes" className="pl-12">My Recipes</Link>
                 <Link to="/recipes" className="pl-12">Recipes</Link>
             </div>
           </nav>
         </div>
         <Switch>
-          <Route path="/submit">
-            <SubmitPage />
+          <Route path="/edit-recipe/:id">
+            <EditRecipePage />
           </Route>
           <Route path="/recipes/:id">
             <RecipePage />
           </Route>
           <Route path="/recipes">
             <MultiRecipePage />
+          </Route>
+          <Route path="/my-recipes">
+            <AdminRecipesPage />
           </Route>
           <Route path="/">
             <Home />

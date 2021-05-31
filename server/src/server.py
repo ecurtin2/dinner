@@ -48,6 +48,7 @@ class RecipeStoreService(RecipeStoreBase):
             was_found = True
         except FileNotFoundError:
             r = Recipe()
+
         return GetRecipyByIdResponse(was_found, r)
 
     @log_method

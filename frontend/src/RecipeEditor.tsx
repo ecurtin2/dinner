@@ -7,10 +7,12 @@ import {
   Form,
   Field,
   useField,
+  Formik,
 } from "formik";
 import { Recipe } from "./messages/recipe";
-import { postRecipe } from "./Api";
+import { postRecipe, getRecipe } from "./Api";
 import { SingleRecipePage } from "./Recipe";
+import { useParams } from "react-router-dom";
 
 const FormSchema = Yup.object().shape({
   title: Yup.string()
@@ -76,25 +78,25 @@ function CustomFileUpload(props: any) {
 }
 
 type FieldLabelProps = {
-    name: string;
+  name: string;
 }
 
 function FieldLabel(props: FieldLabelProps) {
-    return <label htmlFor={props.name} className="pt-4 pb-2 max-h-12">{props.name}</label>
+  return <label htmlFor={props.name} className="pt-4 pb-2 max-h-12">{props.name}</label>
 }
 
 type InlineFieldProps = {
-    name: string,
-    placeholder: string
+  name: string,
+  placeholder: string
 }
 
 function InlineField(props: InlineFieldProps) {
-    return (<Field
-      placeholder={props.placeholder}
-      name={props.name}
-      type="text"
-      className="p-2 m-2"
-    />)
+  return (<Field
+    placeholder={props.placeholder}
+    name={props.name}
+    type="text"
+    className="p-2 m-2"
+  />)
 }
 
 const InnerForm = (props: FormikProps<Recipe>) => {
@@ -107,7 +109,7 @@ const InnerForm = (props: FormikProps<Recipe>) => {
 
         <Form className="grid grid-cols-1 pl-10 pr-20">
           <div className="text-primary font-semibold">
-            Recipe Unique ID: {props.values.id ? props.values.id: 'To be Determined'}
+            Recipe Unique ID: {props.values.id ? props.values.id : 'To be Determined'}
           </div>
           <FieldLabel name="Title" />
           <Field className="w-1/2" name="title" type="text" />
@@ -161,24 +163,36 @@ const InnerForm = (props: FormikProps<Recipe>) => {
 
 // Left this here in case i need it later
 // don't really know what im doing lmao
-interface MyFormProps {}
+interface MyFormProps { }
 
-const SubmitPage = withFormik<MyFormProps, Recipe>({
-  mapPropsToValues: (props) => {
-    return {
-      id: "",
-      title: "My Recipe",
-      description: "Write a short description here...",
-      instructions: "Describe step-by-step process here...",
-      teaserImage: "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAdQAAAA8BAMAAAAtaVYEAAAAG1BMVEXMzMyWlpacnJzFxcWqqqqjo6O3t7exsbG+vr6io6CQAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACh0lEQVRoge2WwVPaQBSHfyEQc1yygByTNep1ae09xtLpkUSY8QjT8a7O2F5Da6f/dt++gLUw9NRKtO87IP4evNlv3rIbQBAEQRAEQRAEQRAEQRAEQRAE4TWTdLtdvaPmq13fCovjaiv0LDD6S8v6F4xn/dlkR2236iIqDrfCpqsCu2b6B1W/b3FbbaavUvUgBjrZZvoiVIPiBDhLLuHnqcV1NId3FjtV78F8K1xMYwySC8U1oEUvfkW/2EtwcmYu8KjqAp3XPRsGqS6mxRz5F4NOmk+C/ngA73zCqum1+VyifXoXYzk9VlyrpYhlaiwn5ftjlxpjEnDQ69c9GwapHroteYKRHVlfeze4g3cEVs38Q4pbc19jipbiGs+uNDHGaN24hIojkvfoMO+CPxLZumfD0AgjYzQqpzqnWdFsrEdvnGqFIc0wBNloBIprcGJJV1EpmLjk7YAb1RuYPzJY9WwYpEDToGWXXduOPmJB/1W8RUnVUplerhNNZ1SouFZLhepXcp5SuFLlYN2zYdBUeU3nH2hYP4psWWH1a3xUbfc+aZprqLhWH0tBrcpJeN/D41SrJz0bhoZP+y3znVOAUNMmfthQHbk/NHfFtdVlU29gTuZY2rUqB6ue+xXbhn5RM3RiUr21XuXrzgTlluqBpkOoo7hGBRrireJjiZNhfSyxKgernns220K7WyOpYO7LrNPLJ2GUDzdUW6ezlC4bo7hGLPrlQPFlw0lRXzasysG6Z8PQ7umdrvuvafvIL+kR4rt7hPhNNTRZbsPiSnEN7gv9Kq4fIVzy7ukjhAvWPV8oFYJ432t4JqZ4k+17Dc/EInJX6n/BQXK17yUIgiAIgiAIgiAIL4Gf3bhxw5vF4B4AAAAASUVORK5CYII=",
-      ingredients: [{ name: "ingredient1", quantity: 1, unit: "" }],
-      embedding: {salt: 1.0, fat: 1.0, acid: 1.0, head: 1.0, umami: 1.0}
-    };
-  },
-  validationSchema: FormSchema,
-  handleSubmit: (values) => {
-    postRecipe(values);
-  },
-})(InnerForm);
 
-export default SubmitPage;
+export function EditRecipePage() {
+  const { id } = useParams<{ id: string }>();
+  const [recipe_to_render, set_recipe] = React.useState<Recipe>({
+    id: "",
+    title: "My Recipe",
+    description: "Write a short description here...",
+    instructions: "Describe step-by-step process here...",
+    teaserImage: "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAdQAAAA8BAMAAAAtaVYEAAAAG1BMVEXMzMyWlpacnJzFxcWqqqqjo6O3t7exsbG+vr6io6CQAAAACXBIWXMAAA7EAAAOxAGVKw4bAAACh0lEQVRoge2WwVPaQBSHfyEQc1yygByTNep1ae09xtLpkUSY8QjT8a7O2F5Da6f/dt++gLUw9NRKtO87IP4evNlv3rIbQBAEQRAEQRAEQRAEQRAEQRAE4TWTdLtdvaPmq13fCovjaiv0LDD6S8v6F4xn/dlkR2236iIqDrfCpqsCu2b6B1W/b3FbbaavUvUgBjrZZvoiVIPiBDhLLuHnqcV1NId3FjtV78F8K1xMYwySC8U1oEUvfkW/2EtwcmYu8KjqAp3XPRsGqS6mxRz5F4NOmk+C/ngA73zCqum1+VyifXoXYzk9VlyrpYhlaiwn5ftjlxpjEnDQ69c9GwapHroteYKRHVlfeze4g3cEVs38Q4pbc19jipbiGs+uNDHGaN24hIojkvfoMO+CPxLZumfD0AgjYzQqpzqnWdFsrEdvnGqFIc0wBNloBIprcGJJV1EpmLjk7YAb1RuYPzJY9WwYpEDToGWXXduOPmJB/1W8RUnVUplerhNNZ1SouFZLhepXcp5SuFLlYN2zYdBUeU3nH2hYP4psWWH1a3xUbfc+aZprqLhWH0tBrcpJeN/D41SrJz0bhoZP+y3znVOAUNMmfthQHbk/NHfFtdVlU29gTuZY2rUqB6ue+xXbhn5RM3RiUr21XuXrzgTlluqBpkOoo7hGBRrireJjiZNhfSyxKgernns220K7WyOpYO7LrNPLJ2GUDzdUW6ezlC4bo7hGLPrlQPFlw0lRXzasysG6Z8PQ7umdrvuvafvIL+kR4rt7hPhNNTRZbsPiSnEN7gv9Kq4fIVzy7ukjhAvWPV8oFYJ432t4JqZ4k+17Dc/EInJX6n/BQXK17yUIgiAIgiAIgiAIL4Gf3bhxw5vF4B4AAAAASUVORK5CYII=",
+    ingredients: [{ name: "ingredient1", quantity: 1, unit: "" }],
+    embedding: {salt: 1.0, fat: 1.0, acid: 1.0, head: 1.0, umami: 1.0}
+  });
+  React.useEffect( () => {
+          const getmyrecipe = async () => {
+              await getRecipe(id).then((r) => {
+                if (typeof(r) === "undefined") {
+                } else {  
+                  set_recipe(r)
+                }
+              });
+          };
+          getmyrecipe();
+      },
+      []
+  );
+
+  console.log(recipe_to_render)
+  return <Formik enableReinitialize={true} initialValues={recipe_to_render} onSubmit={(values) => { postRecipe(values); }}>
+    {InnerForm}
+  </Formik>
+}

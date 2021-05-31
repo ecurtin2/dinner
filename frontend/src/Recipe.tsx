@@ -11,7 +11,7 @@ const RecipeCard: FunctionComponent<Recipe> = ({
   teaserImage,
 }: Recipe) => (
   <Link to={{ pathname: `/recipes/${id}` }}>
-    <div className="bg-white hover:bg-primary_muted rounded-xl shadow-md">
+    <div className="bg-white hover:bg-bg_primary_muted rounded-xl shadow-md">
       <div className="md:flex">
         <div className="md:flex-shrink-0">
           <img
@@ -34,9 +34,7 @@ const RecipeCard: FunctionComponent<Recipe> = ({
   </Link>
 );
 
-const RecipeCardGrid: FunctionComponent<RecipeList> = ({
-  recipes,
-}: RecipeList) => (
+const RecipeCardGrid: FunctionComponent<RecipeList> = ({ recipes, }: RecipeList) => (
   <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-4">
     {recipes.map(RecipeCard)}
   </div>
