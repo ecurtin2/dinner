@@ -1,6 +1,8 @@
 # editors
 .vscode/
 
+node_modules/
+
 # storage
 
 /storage
@@ -109,7 +111,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/

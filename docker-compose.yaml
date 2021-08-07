@@ -42,9 +42,16 @@ services:
       - ./frontend/src/messages:/build/typescript
       - ./server/src/proto:/build/python
 
-  frontend:
+  frontend-build:
     build:
       context: frontend
+      target: build
+    volumes:
+      - ./frontend/build:/app/build
+  frontend-dev:
+    build:
+      context: frontend
+      target: dev
     volumes:
       - ./frontend:/app
     ports:
