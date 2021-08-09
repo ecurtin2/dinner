@@ -46,6 +46,7 @@ services:
     depends_on:
       - envoy
       - server
+    image: evamicur/dinner:0.0.1
     build:
       context: frontend
       target: prod
