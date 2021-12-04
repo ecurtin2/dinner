@@ -5,7 +5,7 @@ import { grpc } from '@improbable-eng/grpc-web';
 const rpc = new GrpcWebImpl('http://localhost:8080', {
   transport: NodeHttpTransport(),
   debug: true,
-  metadata: new grpc.Metadata(),
+  metadata: new grpc.Metadata({token: "abcdef"}),
 });
 
 const client = new RecipeStoreClientImpl(rpc);

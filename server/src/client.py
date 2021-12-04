@@ -6,7 +6,7 @@ from grpclib.client import Channel
 
 async def main():
     channel = Channel(host="127.0.0.1", port=9090)
-    service = RecipeStoreStub(channel)
+    service = RecipeStoreStub(channel, metadata={"auth-token": "abc"})
     response = await service.post_recipe()
     print(response)
     # don't forget to close the channel when done!

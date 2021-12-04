@@ -41,8 +41,9 @@ def log_method(m):
 
 class RecipeStoreService(RecipeStoreBase):
     @log_method
-    async def get_recipe_by_id(self, recipe_id: str) -> "GetRecipyByIdResponse":
+    async def get_recipe_by_id(self, recipe_id: str, *, metadata=None) -> "GetRecipyByIdResponse":
         was_found = False
+        logger.info(f"Metadata={metadata}")
         try:
             r = load(recipe_id=recipe_id)
             was_found = True

@@ -1,5 +1,5 @@
 syntax = "proto3";
-
+package recipe;
 
 message Ingredient {
   string name = 1;
@@ -15,7 +15,7 @@ message RecipeEmbedding {
   float salt = 1;
   float fat = 2;
   float acid = 3;
-  float head = 4;
+  float heat = 4;
   float umami = 5;
 
 }
@@ -42,11 +42,11 @@ message PostRecipeResponse {
   string recipe_id = 1;
 }
 
-message GetRecipyByIdRequest {
+message GetRecipeByIdRequest {
   string recipe_id = 1;
 }
 
-message GetRecipyByIdResponse {
+message GetRecipeByIdResponse {
   bool was_found = 1;
   Recipe recipe = 2;
 }
@@ -56,11 +56,12 @@ message DeleteRecipeByIdRequest {
 }
 
 message DeleteRecipeByIdResponse {
+  bool success = 1;
 }
 
 
-service RecipeStore {
-  rpc GetRecipeById(GetRecipyByIdRequest) returns (GetRecipyByIdResponse);
+service RecipeService {
+  rpc GetRecipeById(GetRecipeByIdRequest) returns (GetRecipeByIdResponse);
   rpc DeleteRecipeById(DeleteRecipeByIdRequest) returns (DeleteRecipeByIdResponse);
   rpc QueryRecipes(RecipeQuery) returns (RecipeList);
   rpc PostRecipe(Recipe) returns (PostRecipeResponse);
