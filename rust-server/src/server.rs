@@ -154,8 +154,10 @@ impl RecipeService for MyRecipeService {
         // end Middleware
 
         let recipes = io::query_recipes(req.id);
-        let result = RecipeList {recipes};
-        Ok(Response::new(result))
+        match recipes {
+            Ok(r) => Ok(Response::new(RecipeList { recipes: r })),
+            Err(e) => panic!()
+        }
     }
 
     async fn post_recipe(

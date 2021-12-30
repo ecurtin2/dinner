@@ -1,5 +1,5 @@
 use recipe::recipe_service_client::RecipeServiceClient;
-use recipe::{GetRecipeByIdRequest, RecipeEmbedding, Recipe};
+use recipe::{GetRecipeByIdRequest, RecipeEmbedding, Recipe, RecipeQuery};
 use tonic::{metadata::MetadataValue, transport::Channel, Request};
 mod io;
 
@@ -61,5 +61,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let request2 = tonic::Request::new( r2 );
     let response2 = client.post_recipe(request2).await?;
     println!("RESPONSE={:?}", response2);
+
+
+    let request3 = tonic::Request::new(RecipeQuery {
+        id: "2".to_string(),
+    });
+    let response3 = client.query_recipes(request3).await?;
+    println!("RESPONSE3={:?}", response3);
+
     Ok(())
 }
