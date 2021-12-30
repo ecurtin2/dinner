@@ -1,13 +1,73 @@
-use tonic::{transport::Server, Request, Response, Status};
+mod io;
 
-use recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
-use recipe::{
-    DeleteRecipeByIdRequest, DeleteRecipeByIdResponse, GetRecipeByIdRequest, GetRecipeByIdResponse,
-    PostRecipeResponse, Recipe, RecipeEmbedding, RecipeList, RecipeQuery,
+use tonic::{
+    metadata::MetadataMap, metadata::MetadataValue, Request, Response, Status, transport::Server,
 };
 
+use recipe::{
+    DeleteRecipeByIdRequest, DeleteRecipeByIdResponse, GetRecipeByIdRequest, GetRecipeByIdResponse,
+    PostRecipeResponse, Recipe, RecipeList, RecipeQuery,
+};
+use recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
+
+extern crate pretty_env_logger;
+#[macro_use]
+extern crate log;
 pub mod recipe {
     tonic::include_proto!("recipe");
+}
+
+
+#[derive(Eq, PartialEq)]
+enum AuthAction {
+    CREATE,
+    READ,
+    DELETE,
+}
+
+#[derive(Eq, PartialEq)]
+enum AuthResource {
+    RECIPE,
+}
+
+#[derive(Eq, PartialEq)]
+struct AccessGrant {
+    action: AuthAction,
+    resource: AuthResource,
+}
+
+static ADMIN_ROLE: &'static [AccessGrant] = &[
+    AccessGrant {
+        action: AuthAction::CREATE,
+        resource: AuthResource::RECIPE,
+    },
+    AccessGrant {
+        action: AuthAction::READ,
+        resource: AuthResource::RECIPE,
+    },
+    AccessGrant {
+        action: AuthAction::DELETE,
+        resource: AuthResource::RECIPE,
+    },
+];
+
+static UNAUTHENTICATED_USER_ROLE: &'static [AccessGrant] = &[AccessGrant {
+    action: AuthAction::READ,
+    resource: AuthResource::RECIPE,
+}];
+
+fn check_auth(meta: &MetadataMap, requires: AccessGrant) -> Option<Status> {
+    let token = MetadataValue::from_str("eJYze....").unwrap();
+    let user_token = meta.get("authorization");
+    let user_role = match user_token {
+        Some(user_token) if user_token == token => &ADMIN_ROLE,
+        _ => &UNAUTHENTICATED_USER_ROLE,
+    };
+    let allowed: bool = user_role.contains(&requires);
+    match allowed {
+        true => None,
+        false => Some(Status::unauthenticated("Access denied")),
+    }
 }
 
 #[derive(Debug, Default)]
@@ -19,27 +79,29 @@ impl RecipeService for MyRecipeService {
         &self,
         request: Request<GetRecipeByIdRequest>,
     ) -> Result<Response<GetRecipeByIdResponse>, Status> {
-        println!("Got a request: {:?}", request);
+        // Middleware but I don't know enough rust to make it smarter
+        let auth_errors = check_auth(
+            request.metadata(),
+            AccessGrant {
+                action: AuthAction::CREATE,
+                resource: AuthResource::RECIPE,
+            },
+        );
+        match auth_errors {
+            Some(s) => return Err(s),
+            _ => (),
+        }
 
+        // TODO: I have no idea what this does but borrow checker yells at me
+        let req = request.into_inner();
+        info!("{:?}", req);
+        // end Middleware
+
+        let r = io::load_recipe(req.recipe_id);
         let reply = recipe::GetRecipeByIdResponse {
             was_found: true,
-            recipe: Some(Recipe {
-                id: "1".into(),
-                title: "My recipe".into(),
-                description: "my description".into(),
-                instructions: "instructinos go here".into(),
-                teaser_image: "this might crash everything".into(),
-                embedding: Some(RecipeEmbedding {
-                    salt: 0.1,
-                    fat: 0.15,
-                    acid: 0.25,
-                    heat: 0.3,
-                    umami: 0.5,
-                }),
-                ingredients: vec![],
-            }),
+            recipe: Some(r),
         };
-
         Ok(Response::new(reply))
     }
 
@@ -47,6 +109,25 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<DeleteRecipeByIdRequest>,
     ) -> Result<tonic::Response<DeleteRecipeByIdResponse>, tonic::Status> {
+                // Middleware but I don't know enough rust to make it smarter
+        let auth_errors = check_auth(
+            request.metadata(),
+            AccessGrant {
+                action: AuthAction::DELETE,
+                resource: AuthResource::RECIPE,
+            },
+        );
+        match auth_errors {
+            Some(s) => return Err(s),
+            _ => (),
+        }
+
+        // TODO: I have no idea what this does but borrow checker yells at me
+        let req = request.into_inner();
+        info!("{:?}", req);
+        // end Middleware
+
+        io::delete_recipe(req.recipe_id);
         let response = DeleteRecipeByIdResponse { success: true };
         Ok(Response::new(response))
     }
@@ -55,25 +136,25 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<RecipeQuery>,
     ) -> Result<tonic::Response<RecipeList>, tonic::Status> {
-        let recipe_result = recipe::Recipe {
-            id: "1".into(),
-            title: "My recipe".into(),
-            description: "my description".into(),
-            instructions: "instructinos go here".into(),
-            teaser_image: "this might crash everything".into(),
-            embedding: Some(RecipeEmbedding {
-                salt: 0.1,
-                fat: 0.15,
-                acid: 0.25,
-                heat: 0.3,
-                umami: 0.5,
-            }),
-            ingredients: vec![],
-        };
+        let auth_errors = check_auth(
+            request.metadata(),
+            AccessGrant {
+                action: AuthAction::READ,
+                resource: AuthResource::RECIPE,
+            },
+        );
+        match auth_errors {
+            Some(s) => return Err(s),
+            _ => (),
+        }
 
-        let result = RecipeList {
-            recipes: vec![recipe_result],
-        };
+        // TODO: I have no idea what this does but borrow checker yells at me
+        let req = request.into_inner();
+        info!("{:?}", req);
+        // end Middleware
+
+        let recipes = io::query_recipes(req.id);
+        let result = RecipeList {recipes};
         Ok(Response::new(result))
     }
 
@@ -81,8 +162,27 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<Recipe>,
     ) -> Result<tonic::Response<PostRecipeResponse>, tonic::Status> {
+
+                let auth_errors = check_auth(
+            request.metadata(),
+            AccessGrant {
+                action: AuthAction::CREATE,
+                resource: AuthResource::RECIPE,
+            },
+        );
+        match auth_errors {
+            Some(s) => return Err(s),
+            _ => (),
+        }
+
+        // TODO: I have no idea what this does but borrow checker yells at me
+        let req = request.into_inner();
+        info!("{:?}", req);
+        // end Middleware
+        let id = io::save_recipe(req);
+
         let result = PostRecipeResponse {
-            recipe_id: "1".into(),
+            recipe_id: id.into(),
         };
         Ok(Response::new(result))
     }
@@ -90,13 +190,11 @@ impl RecipeService for MyRecipeService {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let addr = "[::1]:50051".parse()?;
-    let service = MyRecipeService::default();
-
-    Server::builder()
-        .add_service(RecipeServiceServer::new(service))
-        .serve(addr)
-        .await?;
-
-    Ok(())
+    pretty_env_logger::init_timed();
+    let addr = "[::1]:50051".parse().unwrap();
+    let serviceimpl = MyRecipeService::default();
+    let svc = RecipeServiceServer::new(serviceimpl);
+    info!("gRPC server listening on {}", addr);
+    Server::builder().add_service(svc).serve(addr).await?;
+    return Ok(());
 }
