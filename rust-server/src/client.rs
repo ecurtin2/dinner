@@ -1,6 +1,8 @@
+#![allow(dead_code)]
 use recipe::recipe_service_client::RecipeServiceClient;
 use recipe::{GetRecipeByIdRequest, RecipeEmbedding, Recipe, RecipeQuery};
-use tonic::{metadata::MetadataValue, transport::Channel, Request};
+use tonic::{metadata::MetadataValue, transport::Channel, Request, transport::Uri};
+use std::env;
 mod io;
 
 pub mod recipe {
@@ -29,7 +31,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     io::save_recipe(r.clone());
     println!("SAVED RECIPE");
 
-    let channel = Channel::from_static("http://[::1]:50051").connect().await?;
+    let addr = "http://".to_owned() + &env::var("DINNER_HOST").unwrap_or("127.0.0.1:9090".to_string());
+    let uri: Uri = addr.parse().unwrap();
+    let channel = match Channel::builder(uri.clone()).connect().await {
+        Ok(c) => c,
+        Err(e) => panic!("Cannot connect to: {}", uri)
+    };
+
     let token = MetadataValue::from_str("eJYze....")?;
     let mut client = RecipeServiceClient::with_interceptor(channel, move |mut req: Request<()>| {
         req.metadata_mut().insert("authorization", token.clone());

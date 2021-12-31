@@ -2,22 +2,33 @@ version: '3.4'
 
 services:
 
-  server:
+#  server:
+#    build:
+#      context: server
+#    working_dir: /src
+#    ports:
+#    - 9090:9090
+#    restart: always
+#    command: ["python", "server.py"]
+#    environment:
+#      - DINNER_STORAGE_DIR=/storage
+#      - SERVICE_HOST=0.0.0.0
+#      - SERVICE_PORT=9090
+#      - RECIPES_DIR=/storage
+#    volumes:
+#    - ./storage/:/storage
+#    - ./server/src:/src
+
+  rust-server:
     build:
-      context: server
-    working_dir: /src
+      context: .
     ports:
-    - 9090:9090
-    restart: always
-    command: ["python", "server.py"]
-    environment:
-      - DINNER_STORAGE_DIR=/storage
-      - SERVICE_HOST=0.0.0.0
-      - SERVICE_PORT=9090
-      - RECIPES_DIR=/storage
+      - 9090:9090
     volumes:
-    - ./storage/:/storage
-    - ./server/src:/src
+      - ./rust-server/data:/data
+    environment:
+      - RUST_LOG=info
+      - DINNER_HOST=0.0.0.0:9090
 
   envoy:
     build:
@@ -25,7 +36,8 @@ services:
     ports:
       - "8080:8080"
     links:
-      - server
+#      - server
+      - rust-server
 
 # Don't actually use this right now but keep it around just in case
 #  db:
@@ -45,7 +57,8 @@ services:
   frontend:
     depends_on:
       - envoy
-      - server
+#      - server
+      - rust-server
     image: evamicur/dinner:0.0.1
     build:
       context: frontend
@@ -56,7 +69,8 @@ services:
   frontend-dev:
     depends_on:
       - envoy
-      - server
+      - rust-server
+#      - server
     build:
       context: frontend
       target: dev

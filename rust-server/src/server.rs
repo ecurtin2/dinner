@@ -1,21 +1,19 @@
 mod io;
+mod recipe {
+    tonic::include_proto!("recipe");
+}
 
 use tonic::{
     metadata::MetadataMap, metadata::MetadataValue, Request, Response, Status, transport::Server,
 };
 
-use recipe::{
+use crate::recipe::{
     DeleteRecipeByIdRequest, DeleteRecipeByIdResponse, GetRecipeByIdRequest, GetRecipeByIdResponse,
-    PostRecipeResponse, Recipe, RecipeList, RecipeQuery,
+    PostRecipeResponse, Recipe, RecipeList, RecipeQuery
 };
-use recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
-
-extern crate pretty_env_logger;
-#[macro_use]
-extern crate log;
-pub mod recipe {
-    tonic::include_proto!("recipe");
-}
+use crate::recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
+use std::env;
+use log::{info};
 
 
 #[derive(Eq, PartialEq)]
@@ -98,7 +96,7 @@ impl RecipeService for MyRecipeService {
         // end Middleware
 
         let r = io::load_recipe(req.recipe_id);
-        let reply = recipe::GetRecipeByIdResponse {
+        let reply = GetRecipeByIdResponse {
             was_found: true,
             recipe: Some(r),
         };
@@ -156,7 +154,7 @@ impl RecipeService for MyRecipeService {
         let recipes = io::query_recipes(req.id);
         match recipes {
             Ok(r) => Ok(Response::new(RecipeList { recipes: r })),
-            Err(e) => panic!()
+            Err(_e) => panic!()
         }
     }
 
@@ -191,9 +189,13 @@ impl RecipeService for MyRecipeService {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::init_timed();
-    let addr = "[::1]:50051".parse().unwrap();
+
+    let addr = match env::var("DINNER_HOST") {
+        Ok(v) => v.parse().unwrap(),
+        Err(_e) => "127.0.0.1:9090".parse().unwrap()
+    };
     let serviceimpl = MyRecipeService::default();
     let svc = RecipeServiceServer::new(serviceimpl);
     info!("gRPC server listening on {}", addr);

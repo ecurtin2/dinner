@@ -49,7 +49,7 @@ pub fn query_recipes(id: String) -> Result<Vec<Recipe>, Error> {
         let r = load_recipe_from_file(entry.into_os_string().into_string().unwrap());
         match r {
             Ok(recipe) => recipes.push(recipe),
-            Err(e) => (),
+            Err(_e) => (),
         }
     }
     Ok(recipes)
