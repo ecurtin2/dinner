@@ -1,36 +1,20 @@
 version: '3.4'
 
 services:
-
-#  server:
-#    build:
-#      context: server
-#    working_dir: /src
-#    ports:
-#    - 9090:9090
-#    restart: always
-#    command: ["python", "server.py"]
-#    environment:
-#      - DINNER_STORAGE_DIR=/storage
-#      - SERVICE_HOST=0.0.0.0
-#      - SERVICE_PORT=9090
-#      - RECIPES_DIR=/storage
-#    volumes:
-#    - ./storage/:/storage
-#    - ./server/src:/src
-
   server:
+    image: evamicur/dinner-server:0.0.2
     build:
       context: .
     ports:
       - 9090:9090
     volumes:
-      - ./rust-server/data:/data
+      - ./server/data:/data
     environment:
       - RUST_LOG=info
       - DINNER_HOST=0.0.0.0:9090
 
   envoy:
+    image: evamicur/dinner-envoy:0.0.2
     build:
       context: envoy
     ports:
@@ -52,14 +36,13 @@ services:
     volumes:
       - ./protobufs/recipe.proto:/recipe.proto
       - ./frontend/src/messages:/build/typescript
-      - ./server/src/proto:/build/python
 
   frontend:
     depends_on:
       - envoy
       - server
 
-    image: evamicur/dinner:0.0.1
+    image: evamicur/dinner-frontend:0.0.2
     build:
       context: frontend
       target: prod

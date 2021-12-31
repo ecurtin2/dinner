@@ -63,7 +63,9 @@ export interface DeleteRecipeByIdResponse {
   success: boolean;
 }
 
-const baseIngredient: object = { name: "" };
+function createBaseIngredient(): Ingredient {
+  return { name: "" };
+}
 
 export const Ingredient = {
   encode(
@@ -79,7 +81,7 @@ export const Ingredient = {
   decode(input: _m0.Reader | Uint8Array, length?: number): Ingredient {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseIngredient } as Ingredient;
+    const message = createBaseIngredient();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -95,12 +97,11 @@ export const Ingredient = {
   },
 
   fromJSON(object: any): Ingredient {
-    const message = { ...baseIngredient } as Ingredient;
-    if (object.name !== undefined && object.name !== null) {
-      message.name = String(object.name);
-    } else {
-      message.name = "";
-    }
+    const message = createBaseIngredient();
+    message.name =
+      object.name !== undefined && object.name !== null
+        ? String(object.name)
+        : "";
     return message;
   },
 
@@ -110,18 +111,18 @@ export const Ingredient = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Ingredient>): Ingredient {
-    const message = { ...baseIngredient } as Ingredient;
-    if (object.name !== undefined && object.name !== null) {
-      message.name = object.name;
-    } else {
-      message.name = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<Ingredient>, I>>(
+    object: I
+  ): Ingredient {
+    const message = createBaseIngredient();
+    message.name = object.name ?? "";
     return message;
   },
 };
 
-const baseRecipeIngredient: object = { name: "", quantity: 0, unit: "" };
+function createBaseRecipeIngredient(): RecipeIngredient {
+  return { name: "", quantity: 0, unit: "" };
+}
 
 export const RecipeIngredient = {
   encode(
@@ -143,7 +144,7 @@ export const RecipeIngredient = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RecipeIngredient {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecipeIngredient } as RecipeIngredient;
+    const message = createBaseRecipeIngredient();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -165,61 +166,45 @@ export const RecipeIngredient = {
   },
 
   fromJSON(object: any): RecipeIngredient {
-    const message = { ...baseRecipeIngredient } as RecipeIngredient;
-    if (object.name !== undefined && object.name !== null) {
-      message.name = String(object.name);
-    } else {
-      message.name = "";
-    }
-    if (object.quantity !== undefined && object.quantity !== null) {
-      message.quantity = Number(object.quantity);
-    } else {
-      message.quantity = 0;
-    }
-    if (object.unit !== undefined && object.unit !== null) {
-      message.unit = String(object.unit);
-    } else {
-      message.unit = "";
-    }
+    const message = createBaseRecipeIngredient();
+    message.name =
+      object.name !== undefined && object.name !== null
+        ? String(object.name)
+        : "";
+    message.quantity =
+      object.quantity !== undefined && object.quantity !== null
+        ? Number(object.quantity)
+        : 0;
+    message.unit =
+      object.unit !== undefined && object.unit !== null
+        ? String(object.unit)
+        : "";
     return message;
   },
 
   toJSON(message: RecipeIngredient): unknown {
     const obj: any = {};
     message.name !== undefined && (obj.name = message.name);
-    message.quantity !== undefined && (obj.quantity = message.quantity);
+    message.quantity !== undefined &&
+      (obj.quantity = Math.round(message.quantity));
     message.unit !== undefined && (obj.unit = message.unit);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RecipeIngredient>): RecipeIngredient {
-    const message = { ...baseRecipeIngredient } as RecipeIngredient;
-    if (object.name !== undefined && object.name !== null) {
-      message.name = object.name;
-    } else {
-      message.name = "";
-    }
-    if (object.quantity !== undefined && object.quantity !== null) {
-      message.quantity = object.quantity;
-    } else {
-      message.quantity = 0;
-    }
-    if (object.unit !== undefined && object.unit !== null) {
-      message.unit = object.unit;
-    } else {
-      message.unit = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<RecipeIngredient>, I>>(
+    object: I
+  ): RecipeIngredient {
+    const message = createBaseRecipeIngredient();
+    message.name = object.name ?? "";
+    message.quantity = object.quantity ?? 0;
+    message.unit = object.unit ?? "";
     return message;
   },
 };
 
-const baseRecipeEmbedding: object = {
-  salt: 0,
-  fat: 0,
-  acid: 0,
-  heat: 0,
-  umami: 0,
-};
+function createBaseRecipeEmbedding(): RecipeEmbedding {
+  return { salt: 0, fat: 0, acid: 0, heat: 0, umami: 0 };
+}
 
 export const RecipeEmbedding = {
   encode(
@@ -247,7 +232,7 @@ export const RecipeEmbedding = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RecipeEmbedding {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecipeEmbedding } as RecipeEmbedding;
+    const message = createBaseRecipeEmbedding();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -275,32 +260,25 @@ export const RecipeEmbedding = {
   },
 
   fromJSON(object: any): RecipeEmbedding {
-    const message = { ...baseRecipeEmbedding } as RecipeEmbedding;
-    if (object.salt !== undefined && object.salt !== null) {
-      message.salt = Number(object.salt);
-    } else {
-      message.salt = 0;
-    }
-    if (object.fat !== undefined && object.fat !== null) {
-      message.fat = Number(object.fat);
-    } else {
-      message.fat = 0;
-    }
-    if (object.acid !== undefined && object.acid !== null) {
-      message.acid = Number(object.acid);
-    } else {
-      message.acid = 0;
-    }
-    if (object.heat !== undefined && object.heat !== null) {
-      message.heat = Number(object.heat);
-    } else {
-      message.heat = 0;
-    }
-    if (object.umami !== undefined && object.umami !== null) {
-      message.umami = Number(object.umami);
-    } else {
-      message.umami = 0;
-    }
+    const message = createBaseRecipeEmbedding();
+    message.salt =
+      object.salt !== undefined && object.salt !== null
+        ? Number(object.salt)
+        : 0;
+    message.fat =
+      object.fat !== undefined && object.fat !== null ? Number(object.fat) : 0;
+    message.acid =
+      object.acid !== undefined && object.acid !== null
+        ? Number(object.acid)
+        : 0;
+    message.heat =
+      object.heat !== undefined && object.heat !== null
+        ? Number(object.heat)
+        : 0;
+    message.umami =
+      object.umami !== undefined && object.umami !== null
+        ? Number(object.umami)
+        : 0;
     return message;
   },
 
@@ -314,44 +292,30 @@ export const RecipeEmbedding = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RecipeEmbedding>): RecipeEmbedding {
-    const message = { ...baseRecipeEmbedding } as RecipeEmbedding;
-    if (object.salt !== undefined && object.salt !== null) {
-      message.salt = object.salt;
-    } else {
-      message.salt = 0;
-    }
-    if (object.fat !== undefined && object.fat !== null) {
-      message.fat = object.fat;
-    } else {
-      message.fat = 0;
-    }
-    if (object.acid !== undefined && object.acid !== null) {
-      message.acid = object.acid;
-    } else {
-      message.acid = 0;
-    }
-    if (object.heat !== undefined && object.heat !== null) {
-      message.heat = object.heat;
-    } else {
-      message.heat = 0;
-    }
-    if (object.umami !== undefined && object.umami !== null) {
-      message.umami = object.umami;
-    } else {
-      message.umami = 0;
-    }
+  fromPartial<I extends Exact<DeepPartial<RecipeEmbedding>, I>>(
+    object: I
+  ): RecipeEmbedding {
+    const message = createBaseRecipeEmbedding();
+    message.salt = object.salt ?? 0;
+    message.fat = object.fat ?? 0;
+    message.acid = object.acid ?? 0;
+    message.heat = object.heat ?? 0;
+    message.umami = object.umami ?? 0;
     return message;
   },
 };
 
-const baseRecipe: object = {
-  id: "",
-  title: "",
-  description: "",
-  instructions: "",
-  teaserImage: "",
-};
+function createBaseRecipe(): Recipe {
+  return {
+    id: "",
+    title: "",
+    description: "",
+    instructions: "",
+    teaserImage: "",
+    embedding: undefined,
+    ingredients: [],
+  };
+}
 
 export const Recipe = {
   encode(
@@ -388,8 +352,7 @@ export const Recipe = {
   decode(input: _m0.Reader | Uint8Array, length?: number): Recipe {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecipe } as Recipe;
-    message.ingredients = [];
+    const message = createBaseRecipe();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -425,43 +388,32 @@ export const Recipe = {
   },
 
   fromJSON(object: any): Recipe {
-    const message = { ...baseRecipe } as Recipe;
-    message.ingredients = [];
-    if (object.id !== undefined && object.id !== null) {
-      message.id = String(object.id);
-    } else {
-      message.id = "";
-    }
-    if (object.title !== undefined && object.title !== null) {
-      message.title = String(object.title);
-    } else {
-      message.title = "";
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = String(object.description);
-    } else {
-      message.description = "";
-    }
-    if (object.instructions !== undefined && object.instructions !== null) {
-      message.instructions = String(object.instructions);
-    } else {
-      message.instructions = "";
-    }
-    if (object.teaserImage !== undefined && object.teaserImage !== null) {
-      message.teaserImage = String(object.teaserImage);
-    } else {
-      message.teaserImage = "";
-    }
-    if (object.embedding !== undefined && object.embedding !== null) {
-      message.embedding = RecipeEmbedding.fromJSON(object.embedding);
-    } else {
-      message.embedding = undefined;
-    }
-    if (object.ingredients !== undefined && object.ingredients !== null) {
-      for (const e of object.ingredients) {
-        message.ingredients.push(RecipeIngredient.fromJSON(e));
-      }
-    }
+    const message = createBaseRecipe();
+    message.id =
+      object.id !== undefined && object.id !== null ? String(object.id) : "";
+    message.title =
+      object.title !== undefined && object.title !== null
+        ? String(object.title)
+        : "";
+    message.description =
+      object.description !== undefined && object.description !== null
+        ? String(object.description)
+        : "";
+    message.instructions =
+      object.instructions !== undefined && object.instructions !== null
+        ? String(object.instructions)
+        : "";
+    message.teaserImage =
+      object.teaserImage !== undefined && object.teaserImage !== null
+        ? String(object.teaserImage)
+        : "";
+    message.embedding =
+      object.embedding !== undefined && object.embedding !== null
+        ? RecipeEmbedding.fromJSON(object.embedding)
+        : undefined;
+    message.ingredients = (object.ingredients ?? []).map((e: any) =>
+      RecipeIngredient.fromJSON(e)
+    );
     return message;
   },
 
@@ -489,49 +441,26 @@ export const Recipe = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<Recipe>): Recipe {
-    const message = { ...baseRecipe } as Recipe;
-    message.ingredients = [];
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
-    } else {
-      message.id = "";
-    }
-    if (object.title !== undefined && object.title !== null) {
-      message.title = object.title;
-    } else {
-      message.title = "";
-    }
-    if (object.description !== undefined && object.description !== null) {
-      message.description = object.description;
-    } else {
-      message.description = "";
-    }
-    if (object.instructions !== undefined && object.instructions !== null) {
-      message.instructions = object.instructions;
-    } else {
-      message.instructions = "";
-    }
-    if (object.teaserImage !== undefined && object.teaserImage !== null) {
-      message.teaserImage = object.teaserImage;
-    } else {
-      message.teaserImage = "";
-    }
-    if (object.embedding !== undefined && object.embedding !== null) {
-      message.embedding = RecipeEmbedding.fromPartial(object.embedding);
-    } else {
-      message.embedding = undefined;
-    }
-    if (object.ingredients !== undefined && object.ingredients !== null) {
-      for (const e of object.ingredients) {
-        message.ingredients.push(RecipeIngredient.fromPartial(e));
-      }
-    }
+  fromPartial<I extends Exact<DeepPartial<Recipe>, I>>(object: I): Recipe {
+    const message = createBaseRecipe();
+    message.id = object.id ?? "";
+    message.title = object.title ?? "";
+    message.description = object.description ?? "";
+    message.instructions = object.instructions ?? "";
+    message.teaserImage = object.teaserImage ?? "";
+    message.embedding =
+      object.embedding !== undefined && object.embedding !== null
+        ? RecipeEmbedding.fromPartial(object.embedding)
+        : undefined;
+    message.ingredients =
+      object.ingredients?.map((e) => RecipeIngredient.fromPartial(e)) || [];
     return message;
   },
 };
 
-const baseRecipeList: object = {};
+function createBaseRecipeList(): RecipeList {
+  return { recipes: [] };
+}
 
 export const RecipeList = {
   encode(
@@ -547,8 +476,7 @@ export const RecipeList = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RecipeList {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecipeList } as RecipeList;
-    message.recipes = [];
+    const message = createBaseRecipeList();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -564,13 +492,10 @@ export const RecipeList = {
   },
 
   fromJSON(object: any): RecipeList {
-    const message = { ...baseRecipeList } as RecipeList;
-    message.recipes = [];
-    if (object.recipes !== undefined && object.recipes !== null) {
-      for (const e of object.recipes) {
-        message.recipes.push(Recipe.fromJSON(e));
-      }
-    }
+    const message = createBaseRecipeList();
+    message.recipes = (object.recipes ?? []).map((e: any) =>
+      Recipe.fromJSON(e)
+    );
     return message;
   },
 
@@ -586,19 +511,18 @@ export const RecipeList = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RecipeList>): RecipeList {
-    const message = { ...baseRecipeList } as RecipeList;
-    message.recipes = [];
-    if (object.recipes !== undefined && object.recipes !== null) {
-      for (const e of object.recipes) {
-        message.recipes.push(Recipe.fromPartial(e));
-      }
-    }
+  fromPartial<I extends Exact<DeepPartial<RecipeList>, I>>(
+    object: I
+  ): RecipeList {
+    const message = createBaseRecipeList();
+    message.recipes = object.recipes?.map((e) => Recipe.fromPartial(e)) || [];
     return message;
   },
 };
 
-const baseRecipeQuery: object = { id: "" };
+function createBaseRecipeQuery(): RecipeQuery {
+  return { id: "" };
+}
 
 export const RecipeQuery = {
   encode(
@@ -614,7 +538,7 @@ export const RecipeQuery = {
   decode(input: _m0.Reader | Uint8Array, length?: number): RecipeQuery {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseRecipeQuery } as RecipeQuery;
+    const message = createBaseRecipeQuery();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -630,12 +554,9 @@ export const RecipeQuery = {
   },
 
   fromJSON(object: any): RecipeQuery {
-    const message = { ...baseRecipeQuery } as RecipeQuery;
-    if (object.id !== undefined && object.id !== null) {
-      message.id = String(object.id);
-    } else {
-      message.id = "";
-    }
+    const message = createBaseRecipeQuery();
+    message.id =
+      object.id !== undefined && object.id !== null ? String(object.id) : "";
     return message;
   },
 
@@ -645,18 +566,18 @@ export const RecipeQuery = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<RecipeQuery>): RecipeQuery {
-    const message = { ...baseRecipeQuery } as RecipeQuery;
-    if (object.id !== undefined && object.id !== null) {
-      message.id = object.id;
-    } else {
-      message.id = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<RecipeQuery>, I>>(
+    object: I
+  ): RecipeQuery {
+    const message = createBaseRecipeQuery();
+    message.id = object.id ?? "";
     return message;
   },
 };
 
-const basePostRecipeResponse: object = { recipeId: "" };
+function createBasePostRecipeResponse(): PostRecipeResponse {
+  return { recipeId: "" };
+}
 
 export const PostRecipeResponse = {
   encode(
@@ -672,7 +593,7 @@ export const PostRecipeResponse = {
   decode(input: _m0.Reader | Uint8Array, length?: number): PostRecipeResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...basePostRecipeResponse } as PostRecipeResponse;
+    const message = createBasePostRecipeResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -688,12 +609,11 @@ export const PostRecipeResponse = {
   },
 
   fromJSON(object: any): PostRecipeResponse {
-    const message = { ...basePostRecipeResponse } as PostRecipeResponse;
-    if (object.recipeId !== undefined && object.recipeId !== null) {
-      message.recipeId = String(object.recipeId);
-    } else {
-      message.recipeId = "";
-    }
+    const message = createBasePostRecipeResponse();
+    message.recipeId =
+      object.recipeId !== undefined && object.recipeId !== null
+        ? String(object.recipeId)
+        : "";
     return message;
   },
 
@@ -703,18 +623,18 @@ export const PostRecipeResponse = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<PostRecipeResponse>): PostRecipeResponse {
-    const message = { ...basePostRecipeResponse } as PostRecipeResponse;
-    if (object.recipeId !== undefined && object.recipeId !== null) {
-      message.recipeId = object.recipeId;
-    } else {
-      message.recipeId = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<PostRecipeResponse>, I>>(
+    object: I
+  ): PostRecipeResponse {
+    const message = createBasePostRecipeResponse();
+    message.recipeId = object.recipeId ?? "";
     return message;
   },
 };
 
-const baseGetRecipeByIdRequest: object = { recipeId: "" };
+function createBaseGetRecipeByIdRequest(): GetRecipeByIdRequest {
+  return { recipeId: "" };
+}
 
 export const GetRecipeByIdRequest = {
   encode(
@@ -733,7 +653,7 @@ export const GetRecipeByIdRequest = {
   ): GetRecipeByIdRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseGetRecipeByIdRequest } as GetRecipeByIdRequest;
+    const message = createBaseGetRecipeByIdRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -749,12 +669,11 @@ export const GetRecipeByIdRequest = {
   },
 
   fromJSON(object: any): GetRecipeByIdRequest {
-    const message = { ...baseGetRecipeByIdRequest } as GetRecipeByIdRequest;
-    if (object.recipeId !== undefined && object.recipeId !== null) {
-      message.recipeId = String(object.recipeId);
-    } else {
-      message.recipeId = "";
-    }
+    const message = createBaseGetRecipeByIdRequest();
+    message.recipeId =
+      object.recipeId !== undefined && object.recipeId !== null
+        ? String(object.recipeId)
+        : "";
     return message;
   },
 
@@ -764,18 +683,18 @@ export const GetRecipeByIdRequest = {
     return obj;
   },
 
-  fromPartial(object: DeepPartial<GetRecipeByIdRequest>): GetRecipeByIdRequest {
-    const message = { ...baseGetRecipeByIdRequest } as GetRecipeByIdRequest;
-    if (object.recipeId !== undefined && object.recipeId !== null) {
-      message.recipeId = object.recipeId;
-    } else {
-      message.recipeId = "";
-    }
+  fromPartial<I extends Exact<DeepPartial<GetRecipeByIdRequest>, I>>(
+    object: I
+  ): GetRecipeByIdRequest {
+    const message = createBaseGetRecipeByIdRequest();
+    message.recipeId = object.recipeId ?? "";
     return message;
   },
 };
 
-const baseGetRecipeByIdResponse: object = { wasFound: false };
+function createBaseGetRecipeByIdResponse(): GetRecipeByIdResponse {
+  return { wasFound: false, recipe: undefined };
+}
 
 export const GetRecipeByIdResponse = {
   encode(
@@ -797,7 +716,7 @@ export const GetRecipeByIdResponse = {
   ): GetRecipeByIdResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseGetRecipeByIdResponse } as GetRecipeByIdResponse;
+    const message = createBaseGetRecipeByIdResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -816,17 +735,15 @@ export const GetRecipeByIdResponse = {
   },
 
   fromJSON(object: any): GetRecipeByIdResponse {
-    const message = { ...baseGetRecipeByIdResponse } as GetRecipeByIdResponse;
-    if (object.wasFound !== undefined && object.wasFound !== null) {
-      message.wasFound = Boolean(object.wasFound);
-    } else {
-      message.wasFound = false;
-    }
-    if (object.recipe !== undefined && object.recipe !== null) {
-      message.recipe = Recipe.fromJSON(object.recipe);
-    } else {
-      message.recipe = undefined;
-    }
+    const message = createBaseGetRecipeByIdResponse();
+    message.wasFound =
+      object.wasFound !== undefined && object.wasFound !== null
+        ? Boolean(object.wasFound)
+        : false;
+    message.recipe =
+      object.recipe !== undefined && object.recipe !== null
+        ? Recipe.fromJSON(object.recipe)
+        : undefined;
     return message;
   },
 
@@ -838,25 +755,22 @@ export const GetRecipeByIdResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<GetRecipeByIdResponse>
+  fromPartial<I extends Exact<DeepPartial<GetRecipeByIdResponse>, I>>(
+    object: I
   ): GetRecipeByIdResponse {
-    const message = { ...baseGetRecipeByIdResponse } as GetRecipeByIdResponse;
-    if (object.wasFound !== undefined && object.wasFound !== null) {
-      message.wasFound = object.wasFound;
-    } else {
-      message.wasFound = false;
-    }
-    if (object.recipe !== undefined && object.recipe !== null) {
-      message.recipe = Recipe.fromPartial(object.recipe);
-    } else {
-      message.recipe = undefined;
-    }
+    const message = createBaseGetRecipeByIdResponse();
+    message.wasFound = object.wasFound ?? false;
+    message.recipe =
+      object.recipe !== undefined && object.recipe !== null
+        ? Recipe.fromPartial(object.recipe)
+        : undefined;
     return message;
   },
 };
 
-const baseDeleteRecipeByIdRequest: object = { recipeId: "" };
+function createBaseDeleteRecipeByIdRequest(): DeleteRecipeByIdRequest {
+  return { recipeId: "" };
+}
 
 export const DeleteRecipeByIdRequest = {
   encode(
@@ -875,9 +789,7 @@ export const DeleteRecipeByIdRequest = {
   ): DeleteRecipeByIdRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseDeleteRecipeByIdRequest,
-    } as DeleteRecipeByIdRequest;
+    const message = createBaseDeleteRecipeByIdRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -893,14 +805,11 @@ export const DeleteRecipeByIdRequest = {
   },
 
   fromJSON(object: any): DeleteRecipeByIdRequest {
-    const message = {
-      ...baseDeleteRecipeByIdRequest,
-    } as DeleteRecipeByIdRequest;
-    if (object.recipeId !== undefined && object.recipeId !== null) {
-      message.recipeId = String(object.recipeId);
-    } else {
-      message.recipeId = "";
-    }
+    const message = createBaseDeleteRecipeByIdRequest();
+    message.recipeId =
+      object.recipeId !== undefined && object.recipeId !== null
+        ? String(object.recipeId)
+        : "";
     return message;
   },
 
@@ -910,22 +819,18 @@ export const DeleteRecipeByIdRequest = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<DeleteRecipeByIdRequest>
+  fromPartial<I extends Exact<DeepPartial<DeleteRecipeByIdRequest>, I>>(
+    object: I
   ): DeleteRecipeByIdRequest {
-    const message = {
-      ...baseDeleteRecipeByIdRequest,
-    } as DeleteRecipeByIdRequest;
-    if (object.recipeId !== undefined && object.recipeId !== null) {
-      message.recipeId = object.recipeId;
-    } else {
-      message.recipeId = "";
-    }
+    const message = createBaseDeleteRecipeByIdRequest();
+    message.recipeId = object.recipeId ?? "";
     return message;
   },
 };
 
-const baseDeleteRecipeByIdResponse: object = { success: false };
+function createBaseDeleteRecipeByIdResponse(): DeleteRecipeByIdResponse {
+  return { success: false };
+}
 
 export const DeleteRecipeByIdResponse = {
   encode(
@@ -944,9 +849,7 @@ export const DeleteRecipeByIdResponse = {
   ): DeleteRecipeByIdResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = {
-      ...baseDeleteRecipeByIdResponse,
-    } as DeleteRecipeByIdResponse;
+    const message = createBaseDeleteRecipeByIdResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -962,14 +865,11 @@ export const DeleteRecipeByIdResponse = {
   },
 
   fromJSON(object: any): DeleteRecipeByIdResponse {
-    const message = {
-      ...baseDeleteRecipeByIdResponse,
-    } as DeleteRecipeByIdResponse;
-    if (object.success !== undefined && object.success !== null) {
-      message.success = Boolean(object.success);
-    } else {
-      message.success = false;
-    }
+    const message = createBaseDeleteRecipeByIdResponse();
+    message.success =
+      object.success !== undefined && object.success !== null
+        ? Boolean(object.success)
+        : false;
     return message;
   },
 
@@ -979,17 +879,11 @@ export const DeleteRecipeByIdResponse = {
     return obj;
   },
 
-  fromPartial(
-    object: DeepPartial<DeleteRecipeByIdResponse>
+  fromPartial<I extends Exact<DeepPartial<DeleteRecipeByIdResponse>, I>>(
+    object: I
   ): DeleteRecipeByIdResponse {
-    const message = {
-      ...baseDeleteRecipeByIdResponse,
-    } as DeleteRecipeByIdResponse;
-    if (object.success !== undefined && object.success !== null) {
-      message.success = object.success;
-    } else {
-      message.success = false;
-    }
+    const message = createBaseDeleteRecipeByIdResponse();
+    message.success = object.success ?? false;
     return message;
   },
 };
@@ -1018,6 +912,10 @@ export class RecipeServiceClientImpl implements RecipeService {
 
   constructor(rpc: Rpc) {
     this.rpc = rpc;
+    this.GetRecipeById = this.GetRecipeById.bind(this);
+    this.DeleteRecipeById = this.DeleteRecipeById.bind(this);
+    this.QueryRecipes = this.QueryRecipes.bind(this);
+    this.PostRecipe = this.PostRecipe.bind(this);
   }
 
   GetRecipeById(
@@ -1238,6 +1136,7 @@ type Builtin =
   | number
   | boolean
   | undefined;
+
 export type DeepPartial<T> = T extends Builtin
   ? T
   : T extends Array<infer U>
@@ -1247,6 +1146,14 @@ export type DeepPartial<T> = T extends Builtin
   : T extends {}
   ? { [K in keyof T]?: DeepPartial<T[K]> }
   : Partial<T>;
+
+type KeysOfUnion<T> = T extends T ? keyof T : never;
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
+  : P & { [K in keyof P]: Exact<P[K], I[K]> } & Record<
+        Exclude<keyof I, KeysOfUnion<P>>,
+        never
+      >;
 
 if (_m0.util.Long !== Long) {
   _m0.util.Long = Long as any;
