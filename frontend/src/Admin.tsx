@@ -24,7 +24,7 @@ const EditableRecipeRow: FunctionComponent<Recipe> = ({
         {/* TODO: Reloading page was the easiest way for me to get this working but i dont think it's what you're sposed to do */}
             <button
                 type="submit"
-                onClick={(e) => deleteRecipe(id).then(() => window.location.reload(false))}
+                onClick={(e) => deleteRecipe(id).then(() => window.location.reload())}
                 className="justify-self-center bg-error rounded-xl font-bold h-9 w-20 m-1 text-white hover:bg-error_muted"
             >
                 Delete

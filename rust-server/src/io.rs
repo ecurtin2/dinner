@@ -31,7 +31,12 @@ pub fn load_recipe(id: String) -> Recipe {
 }
 
 pub fn delete_recipe(id: String) {
-    debug!("Deleting a recipe {}", id)
+    let path = format!("data/recipe_{}.pb", id);
+    let r = fs::remove_file(path);
+    match r {
+        Ok(_) => info!("Deleted recipe {}", id),
+        Err(_e) => info!("Error when deleting recipe {}", id)
+    }
 }
 
 pub fn query_recipes(id: String) -> Result<Vec<Recipe>, Error> {
@@ -63,5 +68,5 @@ pub fn save_recipe(r: Recipe) -> String {
     let mut buf: Vec<u8> = Vec::with_capacity(1000);
     r.encode(&mut buf).unwrap();
     file.write_all(&buf).expect("failed to write ");
-    path
+    r.id
 }

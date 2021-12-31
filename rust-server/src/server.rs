@@ -14,21 +14,22 @@ use crate::recipe::{
 use crate::recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
 use std::env;
 use log::{info};
+use uuid::Uuid;
 
 
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Debug)]
 enum AuthAction {
     CREATE,
     READ,
     DELETE,
 }
 
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Debug)]
 enum AuthResource {
     RECIPE,
 }
 
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Debug)]
 struct AccessGrant {
     action: AuthAction,
     resource: AuthResource,
@@ -56,7 +57,7 @@ static UNAUTHENTICATED_USER_ROLE: &'static [AccessGrant] = &[AccessGrant {
 
 fn check_auth(meta: &MetadataMap, requires: AccessGrant) -> Option<Status> {
     let token = MetadataValue::from_str("eJYze....").unwrap();
-    let user_token = meta.get("authorization");
+    let user_token = meta.get("authorization-token");
     let user_role = match user_token {
         Some(user_token) if user_token == token => &ADMIN_ROLE,
         _ => &UNAUTHENTICATED_USER_ROLE,
@@ -64,7 +65,10 @@ fn check_auth(meta: &MetadataMap, requires: AccessGrant) -> Option<Status> {
     let allowed: bool = user_role.contains(&requires);
     match allowed {
         true => None,
-        false => Some(Status::unauthenticated("Access denied")),
+        false => {
+            info!("User not authorized, needs: {:?}", requires);
+            Some(Status::unauthenticated("Access denied"))
+        },
     }
 }
 
@@ -81,7 +85,7 @@ impl RecipeService for MyRecipeService {
         let auth_errors = check_auth(
             request.metadata(),
             AccessGrant {
-                action: AuthAction::CREATE,
+                action: AuthAction::READ,
                 resource: AuthResource::RECIPE,
             },
         );
@@ -134,6 +138,8 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<RecipeQuery>,
     ) -> Result<tonic::Response<RecipeList>, tonic::Status> {
+
+        info!("QUERY_RECIPES");
         let auth_errors = check_auth(
             request.metadata(),
             AccessGrant {
@@ -176,10 +182,14 @@ impl RecipeService for MyRecipeService {
         }
 
         // TODO: I have no idea what this does but borrow checker yells at me
-        let req = request.into_inner();
-        info!("{:?}", req);
+        let mut r = request.into_inner();
+        info!("{:?}", r);
         // end Middleware
-        let id = io::save_recipe(req);
+        if r.id.is_empty() {
+            r.id = Uuid::new_v4().to_hyphenated().to_string();
+        }
+        let id = io::save_recipe(r);
+
 
         let result = PostRecipeResponse {
             recipe_id: id.into(),

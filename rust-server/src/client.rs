@@ -40,7 +40,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let token = MetadataValue::from_str("eJYze....")?;
     let mut client = RecipeServiceClient::with_interceptor(channel, move |mut req: Request<()>| {
-        req.metadata_mut().insert("authorization", token.clone());
+        req.metadata_mut().insert("authorization-token", token.clone());
         Ok(req)
     });
 
@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 
     let r2 = Recipe {
-        id: "2".into(),
+        id: "".into(),
         title: "My Posted recipe".into(),
         description: "my description".into(),
         instructions: "instructinos go here".into(),

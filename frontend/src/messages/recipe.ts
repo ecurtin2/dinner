@@ -4,7 +4,7 @@ import { grpc } from "@improbable-eng/grpc-web";
 import _m0 from "protobufjs/minimal";
 import { BrowserHeaders } from "browser-headers";
 
-export const protobufPackage = "";
+export const protobufPackage = "recipe";
 
 export interface Ingredient {
   name: string;
@@ -20,7 +20,7 @@ export interface RecipeEmbedding {
   salt: number;
   fat: number;
   acid: number;
-  head: number;
+  heat: number;
   umami: number;
 }
 
@@ -46,11 +46,11 @@ export interface PostRecipeResponse {
   recipeId: string;
 }
 
-export interface GetRecipyByIdRequest {
+export interface GetRecipeByIdRequest {
   recipeId: string;
 }
 
-export interface GetRecipyByIdResponse {
+export interface GetRecipeByIdResponse {
   wasFound: boolean;
   recipe: Recipe | undefined;
 }
@@ -59,7 +59,9 @@ export interface DeleteRecipeByIdRequest {
   recipeId: string;
 }
 
-export interface DeleteRecipeByIdResponse {}
+export interface DeleteRecipeByIdResponse {
+  success: boolean;
+}
 
 const baseIngredient: object = { name: "" };
 
@@ -215,7 +217,7 @@ const baseRecipeEmbedding: object = {
   salt: 0,
   fat: 0,
   acid: 0,
-  head: 0,
+  heat: 0,
   umami: 0,
 };
 
@@ -233,8 +235,8 @@ export const RecipeEmbedding = {
     if (message.acid !== 0) {
       writer.uint32(29).float(message.acid);
     }
-    if (message.head !== 0) {
-      writer.uint32(37).float(message.head);
+    if (message.heat !== 0) {
+      writer.uint32(37).float(message.heat);
     }
     if (message.umami !== 0) {
       writer.uint32(45).float(message.umami);
@@ -259,7 +261,7 @@ export const RecipeEmbedding = {
           message.acid = reader.float();
           break;
         case 4:
-          message.head = reader.float();
+          message.heat = reader.float();
           break;
         case 5:
           message.umami = reader.float();
@@ -289,10 +291,10 @@ export const RecipeEmbedding = {
     } else {
       message.acid = 0;
     }
-    if (object.head !== undefined && object.head !== null) {
-      message.head = Number(object.head);
+    if (object.heat !== undefined && object.heat !== null) {
+      message.heat = Number(object.heat);
     } else {
-      message.head = 0;
+      message.heat = 0;
     }
     if (object.umami !== undefined && object.umami !== null) {
       message.umami = Number(object.umami);
@@ -307,7 +309,7 @@ export const RecipeEmbedding = {
     message.salt !== undefined && (obj.salt = message.salt);
     message.fat !== undefined && (obj.fat = message.fat);
     message.acid !== undefined && (obj.acid = message.acid);
-    message.head !== undefined && (obj.head = message.head);
+    message.heat !== undefined && (obj.heat = message.heat);
     message.umami !== undefined && (obj.umami = message.umami);
     return obj;
   },
@@ -329,10 +331,10 @@ export const RecipeEmbedding = {
     } else {
       message.acid = 0;
     }
-    if (object.head !== undefined && object.head !== null) {
-      message.head = object.head;
+    if (object.heat !== undefined && object.heat !== null) {
+      message.heat = object.heat;
     } else {
-      message.head = 0;
+      message.heat = 0;
     }
     if (object.umami !== undefined && object.umami !== null) {
       message.umami = object.umami;
@@ -712,11 +714,11 @@ export const PostRecipeResponse = {
   },
 };
 
-const baseGetRecipyByIdRequest: object = { recipeId: "" };
+const baseGetRecipeByIdRequest: object = { recipeId: "" };
 
-export const GetRecipyByIdRequest = {
+export const GetRecipeByIdRequest = {
   encode(
-    message: GetRecipyByIdRequest,
+    message: GetRecipeByIdRequest,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.recipeId !== "") {
@@ -728,10 +730,10 @@ export const GetRecipyByIdRequest = {
   decode(
     input: _m0.Reader | Uint8Array,
     length?: number
-  ): GetRecipyByIdRequest {
+  ): GetRecipeByIdRequest {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseGetRecipyByIdRequest } as GetRecipyByIdRequest;
+    const message = { ...baseGetRecipeByIdRequest } as GetRecipeByIdRequest;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -746,8 +748,8 @@ export const GetRecipyByIdRequest = {
     return message;
   },
 
-  fromJSON(object: any): GetRecipyByIdRequest {
-    const message = { ...baseGetRecipyByIdRequest } as GetRecipyByIdRequest;
+  fromJSON(object: any): GetRecipeByIdRequest {
+    const message = { ...baseGetRecipeByIdRequest } as GetRecipeByIdRequest;
     if (object.recipeId !== undefined && object.recipeId !== null) {
       message.recipeId = String(object.recipeId);
     } else {
@@ -756,14 +758,14 @@ export const GetRecipyByIdRequest = {
     return message;
   },
 
-  toJSON(message: GetRecipyByIdRequest): unknown {
+  toJSON(message: GetRecipeByIdRequest): unknown {
     const obj: any = {};
     message.recipeId !== undefined && (obj.recipeId = message.recipeId);
     return obj;
   },
 
-  fromPartial(object: DeepPartial<GetRecipyByIdRequest>): GetRecipyByIdRequest {
-    const message = { ...baseGetRecipyByIdRequest } as GetRecipyByIdRequest;
+  fromPartial(object: DeepPartial<GetRecipeByIdRequest>): GetRecipeByIdRequest {
+    const message = { ...baseGetRecipeByIdRequest } as GetRecipeByIdRequest;
     if (object.recipeId !== undefined && object.recipeId !== null) {
       message.recipeId = object.recipeId;
     } else {
@@ -773,11 +775,11 @@ export const GetRecipyByIdRequest = {
   },
 };
 
-const baseGetRecipyByIdResponse: object = { wasFound: false };
+const baseGetRecipeByIdResponse: object = { wasFound: false };
 
-export const GetRecipyByIdResponse = {
+export const GetRecipeByIdResponse = {
   encode(
-    message: GetRecipyByIdResponse,
+    message: GetRecipeByIdResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
     if (message.wasFound === true) {
@@ -792,10 +794,10 @@ export const GetRecipyByIdResponse = {
   decode(
     input: _m0.Reader | Uint8Array,
     length?: number
-  ): GetRecipyByIdResponse {
+  ): GetRecipeByIdResponse {
     const reader = input instanceof _m0.Reader ? input : new _m0.Reader(input);
     let end = length === undefined ? reader.len : reader.pos + length;
-    const message = { ...baseGetRecipyByIdResponse } as GetRecipyByIdResponse;
+    const message = { ...baseGetRecipeByIdResponse } as GetRecipeByIdResponse;
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -813,8 +815,8 @@ export const GetRecipyByIdResponse = {
     return message;
   },
 
-  fromJSON(object: any): GetRecipyByIdResponse {
-    const message = { ...baseGetRecipyByIdResponse } as GetRecipyByIdResponse;
+  fromJSON(object: any): GetRecipeByIdResponse {
+    const message = { ...baseGetRecipeByIdResponse } as GetRecipeByIdResponse;
     if (object.wasFound !== undefined && object.wasFound !== null) {
       message.wasFound = Boolean(object.wasFound);
     } else {
@@ -828,7 +830,7 @@ export const GetRecipyByIdResponse = {
     return message;
   },
 
-  toJSON(message: GetRecipyByIdResponse): unknown {
+  toJSON(message: GetRecipeByIdResponse): unknown {
     const obj: any = {};
     message.wasFound !== undefined && (obj.wasFound = message.wasFound);
     message.recipe !== undefined &&
@@ -837,9 +839,9 @@ export const GetRecipyByIdResponse = {
   },
 
   fromPartial(
-    object: DeepPartial<GetRecipyByIdResponse>
-  ): GetRecipyByIdResponse {
-    const message = { ...baseGetRecipyByIdResponse } as GetRecipyByIdResponse;
+    object: DeepPartial<GetRecipeByIdResponse>
+  ): GetRecipeByIdResponse {
+    const message = { ...baseGetRecipeByIdResponse } as GetRecipeByIdResponse;
     if (object.wasFound !== undefined && object.wasFound !== null) {
       message.wasFound = object.wasFound;
     } else {
@@ -923,13 +925,16 @@ export const DeleteRecipeByIdRequest = {
   },
 };
 
-const baseDeleteRecipeByIdResponse: object = {};
+const baseDeleteRecipeByIdResponse: object = { success: false };
 
 export const DeleteRecipeByIdResponse = {
   encode(
-    _: DeleteRecipeByIdResponse,
+    message: DeleteRecipeByIdResponse,
     writer: _m0.Writer = _m0.Writer.create()
   ): _m0.Writer {
+    if (message.success === true) {
+      writer.uint32(8).bool(message.success);
+    }
     return writer;
   },
 
@@ -945,6 +950,9 @@ export const DeleteRecipeByIdResponse = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1:
+          message.success = reader.bool();
+          break;
         default:
           reader.skipType(tag & 7);
           break;
@@ -953,33 +961,44 @@ export const DeleteRecipeByIdResponse = {
     return message;
   },
 
-  fromJSON(_: any): DeleteRecipeByIdResponse {
+  fromJSON(object: any): DeleteRecipeByIdResponse {
     const message = {
       ...baseDeleteRecipeByIdResponse,
     } as DeleteRecipeByIdResponse;
+    if (object.success !== undefined && object.success !== null) {
+      message.success = Boolean(object.success);
+    } else {
+      message.success = false;
+    }
     return message;
   },
 
-  toJSON(_: DeleteRecipeByIdResponse): unknown {
+  toJSON(message: DeleteRecipeByIdResponse): unknown {
     const obj: any = {};
+    message.success !== undefined && (obj.success = message.success);
     return obj;
   },
 
   fromPartial(
-    _: DeepPartial<DeleteRecipeByIdResponse>
+    object: DeepPartial<DeleteRecipeByIdResponse>
   ): DeleteRecipeByIdResponse {
     const message = {
       ...baseDeleteRecipeByIdResponse,
     } as DeleteRecipeByIdResponse;
+    if (object.success !== undefined && object.success !== null) {
+      message.success = object.success;
+    } else {
+      message.success = false;
+    }
     return message;
   },
 };
 
-export interface RecipeStore {
+export interface RecipeService {
   GetRecipeById(
-    request: DeepPartial<GetRecipyByIdRequest>,
+    request: DeepPartial<GetRecipeByIdRequest>,
     metadata?: grpc.Metadata
-  ): Promise<GetRecipyByIdResponse>;
+  ): Promise<GetRecipeByIdResponse>;
   DeleteRecipeById(
     request: DeepPartial<DeleteRecipeByIdRequest>,
     metadata?: grpc.Metadata
@@ -994,7 +1013,7 @@ export interface RecipeStore {
   ): Promise<PostRecipeResponse>;
 }
 
-export class RecipeStoreClientImpl implements RecipeStore {
+export class RecipeServiceClientImpl implements RecipeService {
   private readonly rpc: Rpc;
 
   constructor(rpc: Rpc) {
@@ -1002,12 +1021,12 @@ export class RecipeStoreClientImpl implements RecipeStore {
   }
 
   GetRecipeById(
-    request: DeepPartial<GetRecipyByIdRequest>,
+    request: DeepPartial<GetRecipeByIdRequest>,
     metadata?: grpc.Metadata
-  ): Promise<GetRecipyByIdResponse> {
+  ): Promise<GetRecipeByIdResponse> {
     return this.rpc.unary(
-      RecipeStoreGetRecipeByIdDesc,
-      GetRecipyByIdRequest.fromPartial(request),
+      RecipeServiceGetRecipeByIdDesc,
+      GetRecipeByIdRequest.fromPartial(request),
       metadata
     );
   }
@@ -1017,7 +1036,7 @@ export class RecipeStoreClientImpl implements RecipeStore {
     metadata?: grpc.Metadata
   ): Promise<DeleteRecipeByIdResponse> {
     return this.rpc.unary(
-      RecipeStoreDeleteRecipeByIdDesc,
+      RecipeServiceDeleteRecipeByIdDesc,
       DeleteRecipeByIdRequest.fromPartial(request),
       metadata
     );
@@ -1028,7 +1047,7 @@ export class RecipeStoreClientImpl implements RecipeStore {
     metadata?: grpc.Metadata
   ): Promise<RecipeList> {
     return this.rpc.unary(
-      RecipeStoreQueryRecipesDesc,
+      RecipeServiceQueryRecipesDesc,
       RecipeQuery.fromPartial(request),
       metadata
     );
@@ -1039,31 +1058,31 @@ export class RecipeStoreClientImpl implements RecipeStore {
     metadata?: grpc.Metadata
   ): Promise<PostRecipeResponse> {
     return this.rpc.unary(
-      RecipeStorePostRecipeDesc,
+      RecipeServicePostRecipeDesc,
       Recipe.fromPartial(request),
       metadata
     );
   }
 }
 
-export const RecipeStoreDesc = {
-  serviceName: "RecipeStore",
+export const RecipeServiceDesc = {
+  serviceName: "recipe.RecipeService",
 };
 
-export const RecipeStoreGetRecipeByIdDesc: UnaryMethodDefinitionish = {
+export const RecipeServiceGetRecipeByIdDesc: UnaryMethodDefinitionish = {
   methodName: "GetRecipeById",
-  service: RecipeStoreDesc,
+  service: RecipeServiceDesc,
   requestStream: false,
   responseStream: false,
   requestType: {
     serializeBinary() {
-      return GetRecipyByIdRequest.encode(this).finish();
+      return GetRecipeByIdRequest.encode(this).finish();
     },
   } as any,
   responseType: {
     deserializeBinary(data: Uint8Array) {
       return {
-        ...GetRecipyByIdResponse.decode(data),
+        ...GetRecipeByIdResponse.decode(data),
         toObject() {
           return this;
         },
@@ -1072,9 +1091,9 @@ export const RecipeStoreGetRecipeByIdDesc: UnaryMethodDefinitionish = {
   } as any,
 };
 
-export const RecipeStoreDeleteRecipeByIdDesc: UnaryMethodDefinitionish = {
+export const RecipeServiceDeleteRecipeByIdDesc: UnaryMethodDefinitionish = {
   methodName: "DeleteRecipeById",
-  service: RecipeStoreDesc,
+  service: RecipeServiceDesc,
   requestStream: false,
   responseStream: false,
   requestType: {
@@ -1094,9 +1113,9 @@ export const RecipeStoreDeleteRecipeByIdDesc: UnaryMethodDefinitionish = {
   } as any,
 };
 
-export const RecipeStoreQueryRecipesDesc: UnaryMethodDefinitionish = {
+export const RecipeServiceQueryRecipesDesc: UnaryMethodDefinitionish = {
   methodName: "QueryRecipes",
-  service: RecipeStoreDesc,
+  service: RecipeServiceDesc,
   requestStream: false,
   responseStream: false,
   requestType: {
@@ -1116,9 +1135,9 @@ export const RecipeStoreQueryRecipesDesc: UnaryMethodDefinitionish = {
   } as any,
 };
 
-export const RecipeStorePostRecipeDesc: UnaryMethodDefinitionish = {
+export const RecipeServicePostRecipeDesc: UnaryMethodDefinitionish = {
   methodName: "PostRecipe",
-  service: RecipeStoreDesc,
+  service: RecipeServiceDesc,
   requestStream: false,
   responseStream: false,
   requestType: {

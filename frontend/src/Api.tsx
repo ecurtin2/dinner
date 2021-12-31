@@ -1,14 +1,14 @@
 import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport';
-import { RecipeStoreClientImpl, Recipe, GrpcWebImpl } from "./messages/recipe";
+import { RecipeServiceClientImpl, Recipe, GrpcWebImpl } from "./messages/recipe";
 import { grpc } from '@improbable-eng/grpc-web';
 
 const rpc = new GrpcWebImpl('http://localhost:8080', {
   transport: NodeHttpTransport(),
   debug: true,
-  metadata: new grpc.Metadata({token: "abcdef"}),
+  metadata: new grpc.Metadata({"authorization-token": "eJYze...."}),
 });
 
-const client = new RecipeStoreClientImpl(rpc);
+const client = new RecipeServiceClientImpl(rpc);
 
 export async function getRecipes(): Promise<Recipe[]> {
   console.log("[GET] recipes");

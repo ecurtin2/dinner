@@ -1,6 +1,8 @@
-FROM node:15.9.0 as base
+FROM node:17.3 as base
 
 WORKDIR /app
+# https://stackoverflow.com/questions/69665222/node-17-0-1-gatsby-error-digital-envelope-routinesunsupported-err-ossl-evp
+ENV NODE_OPTIONS=--openssl-legacy-provider
 ADD package.json .
 RUN yarn install
 ADD . .

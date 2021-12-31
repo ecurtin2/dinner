@@ -19,7 +19,7 @@ services:
 #    - ./storage/:/storage
 #    - ./server/src:/src
 
-  rust-server:
+  server:
     build:
       context: .
     ports:
@@ -35,9 +35,9 @@ services:
       context: envoy
     ports:
       - "8080:8080"
+      - "9901:9901"
     links:
-#      - server
-      - rust-server
+      - server
 
 # Don't actually use this right now but keep it around just in case
 #  db:
@@ -57,8 +57,8 @@ services:
   frontend:
     depends_on:
       - envoy
-#      - server
-      - rust-server
+      - server
+
     image: evamicur/dinner:0.0.1
     build:
       context: frontend
@@ -69,8 +69,7 @@ services:
   frontend-dev:
     depends_on:
       - envoy
-      - rust-server
-#      - server
+      - server
     build:
       context: frontend
       target: dev
