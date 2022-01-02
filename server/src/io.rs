@@ -1,72 +1,85 @@
-use std::fs::File;
-use std::fs;
-use std::io::{Write, Cursor, Error};
-use prost::{Message, DecodeError};
 use crate::recipe::Recipe;
 use log::{debug, info};
+use prost::{DecodeError, Message};
+use std::fs;
+use std::fs::File;
+use std::io::{Cursor, Error, Write};
 
+pub trait Repository {
+    fn load_recipe_by_id(&self, id: String) -> Recipe;
+    fn save_recipe(&self, r: Recipe);
+    fn delete_recipe(&self, id: String);
+    fn query_recipes(&self, id: String) -> Result<Vec<Recipe>, Error>;
+}
 
-pub fn load_recipe_from_file(name: String) -> Result<Recipe, DecodeError> {
+fn load_recipe_from_file(name: String) -> Result<Recipe, DecodeError> {
     debug!("Reading recipe from local file: {}", name);
     let data = fs::read(name).expect("Unable to read file");
     let recipe = Recipe::decode(&mut Cursor::new(data));
     match recipe {
-        Ok(ref r) =>  println!("{}", r.description),
+        Ok(ref r) => info!("Successfully loaded {}", r.id),
         Err(ref _e) => (),
     }
     recipe
 }
 
-pub fn load_recipe(id: String) -> Recipe {
-    debug!("Loading recipe {}", id);
-    let fname = format!("data/recipe_{}.pb", id);
-    let recipe = load_recipe_from_file(fname);
-    match recipe {
-        Ok(r) => {
-            info!("Success reading {}", id);
-            r
+pub struct FileRepository {
+    root_dir: String,
+}
+
+impl FileRepository {
+    pub fn new(root_dir: String) -> Self {
+        Self { root_dir }
+    }
+    fn get_path(&self, id: &String) -> String {
+        format!("{}/recipe_{}.pb", self.root_dir, id)
+    }
+}
+
+impl Repository for FileRepository {
+    fn load_recipe_by_id(&self, id: String) -> Recipe {
+        let path = self.get_path(&id);
+        info!("Loading recipe {} from {}", id, path);
+        let recipe = load_recipe_from_file(path);
+        match recipe {
+            Ok(r) => {
+                info!("Success reading {}", id);
+                r
+            }
+            Err(ref e) => panic!("Error trying to read recipe {}: {}", id, e),
         }
-        Err(ref e) => panic!("Error trying to read recipe {}: {}", id, e)
     }
-}
 
-pub fn delete_recipe(id: String) {
-    let path = format!("data/recipe_{}.pb", id);
-    let r = fs::remove_file(path);
-    match r {
-        Ok(_) => info!("Deleted recipe {}", id),
-        Err(_e) => info!("Error when deleting recipe {}", id)
-    }
-}
-
-pub fn query_recipes(id: String) -> Result<Vec<Recipe>, Error> {
-    info!("QUERYING RECIPE {}", id);
-    let mut entries = fs::read_dir("data")?
-        .map(|res| res.map(|e| e.path()))
-        .collect::<Result<Vec<_>, Error>>()?;
-    entries.sort();
-
-    println!("{:?}", entries);
-
-    debug!("querying for a recipe {}", id);
-    let mut recipes: Vec<Recipe> = Vec::new();
-    for entry in entries {
-        let r = load_recipe_from_file(entry.into_os_string().into_string().unwrap());
+    fn delete_recipe(&self, id: String) {
+        let r = fs::remove_file(self.get_path(&id));
         match r {
-            Ok(recipe) => recipes.push(recipe),
-            Err(_e) => (),
+            Ok(_) => info!("Deleted recipe {}", id),
+            Err(_e) => info!("Error when deleting recipe {}", id),
         }
     }
-    Ok(recipes)
-}
 
-pub fn save_recipe(r: Recipe) -> String {
-    println!("saving recipe: {:?}", r);
-    let path = format!("data/recipe_{}.pb", r.id);
-    // Clone because of borrow checker and returning it but that might be stupid.
-    let mut file = File::create(path.clone()).expect("cannot open");
-    let mut buf: Vec<u8> = Vec::with_capacity(1000);
-    r.encode(&mut buf).unwrap();
-    file.write_all(&buf).expect("failed to write ");
-    r.id
+    fn query_recipes(&self, id: String) -> Result<Vec<Recipe>, Error> {
+        info!("QUERYING RECIPE {}", id);
+        let mut entries = fs::read_dir("data")?
+            .map(|res| res.map(|e| e.path()))
+            .collect::<Result<Vec<_>, Error>>()?;
+        entries.sort();
+        let mut recipes: Vec<Recipe> = Vec::new();
+        for entry in entries {
+            let r = load_recipe_from_file(entry.into_os_string().into_string().unwrap());
+            match r {
+                Ok(recipe) => recipes.push(recipe),
+                Err(_e) => (),
+            }
+        }
+        Ok(recipes)
+    }
+
+    fn save_recipe(&self, r: Recipe) {
+        info!("saving recipe: {:?}", r.id);
+        let mut file = File::create(self.get_path(&r.id)).expect("cannot open");
+        let mut buf: Vec<u8> = Vec::with_capacity(1000);
+        r.encode(&mut buf).unwrap();
+        file.write_all(&buf).expect("failed to write ");
+    }
 }

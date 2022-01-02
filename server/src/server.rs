@@ -4,18 +4,18 @@ mod recipe {
 }
 
 use tonic::{
-    metadata::MetadataMap, metadata::MetadataValue, Request, Response, Status, transport::Server,
+    metadata::MetadataMap, metadata::MetadataValue, transport::Server, Request, Response, Status,
 };
 
+use crate::io::Repository;
+use crate::recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
 use crate::recipe::{
     DeleteRecipeByIdRequest, DeleteRecipeByIdResponse, GetRecipeByIdRequest, GetRecipeByIdResponse,
-    PostRecipeResponse, Recipe, RecipeList, RecipeQuery
+    PostRecipeResponse, Recipe, RecipeList, RecipeQuery,
 };
-use crate::recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
+use log::info;
 use std::env;
-use log::{info};
 use uuid::Uuid;
-
 
 #[derive(Eq, PartialEq, Debug)]
 enum AuthAction {
@@ -68,12 +68,13 @@ fn check_auth(meta: &MetadataMap, requires: AccessGrant) -> Option<Status> {
         false => {
             info!("User not authorized, needs: {:?}", requires);
             Some(Status::unauthenticated("Access denied"))
-        },
+        }
     }
 }
 
-#[derive(Debug, Default)]
-pub struct MyRecipeService {}
+pub struct MyRecipeService {
+    repository: io::FileRepository,
+}
 
 #[tonic::async_trait]
 impl RecipeService for MyRecipeService {
@@ -99,7 +100,7 @@ impl RecipeService for MyRecipeService {
         info!("{:?}", req);
         // end Middleware
 
-        let r = io::load_recipe(req.recipe_id);
+        let r = self.repository.load_recipe_by_id(req.recipe_id);
         let reply = GetRecipeByIdResponse {
             was_found: true,
             recipe: Some(r),
@@ -111,7 +112,7 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<DeleteRecipeByIdRequest>,
     ) -> Result<tonic::Response<DeleteRecipeByIdResponse>, tonic::Status> {
-                // Middleware but I don't know enough rust to make it smarter
+        // Middleware but I don't know enough rust to make it smarter
         let auth_errors = check_auth(
             request.metadata(),
             AccessGrant {
@@ -129,7 +130,7 @@ impl RecipeService for MyRecipeService {
         info!("{:?}", req);
         // end Middleware
 
-        io::delete_recipe(req.recipe_id);
+        self.repository.delete_recipe(req.recipe_id);
         let response = DeleteRecipeByIdResponse { success: true };
         Ok(Response::new(response))
     }
@@ -138,7 +139,6 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<RecipeQuery>,
     ) -> Result<tonic::Response<RecipeList>, tonic::Status> {
-
         info!("QUERY_RECIPES");
         let auth_errors = check_auth(
             request.metadata(),
@@ -157,10 +157,10 @@ impl RecipeService for MyRecipeService {
         info!("{:?}", req);
         // end Middleware
 
-        let recipes = io::query_recipes(req.id);
+        let recipes = self.repository.query_recipes(req.id);
         match recipes {
             Ok(r) => Ok(Response::new(RecipeList { recipes: r })),
-            Err(_e) => panic!()
+            Err(_e) => panic!(),
         }
     }
 
@@ -168,8 +168,7 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<Recipe>,
     ) -> Result<tonic::Response<PostRecipeResponse>, tonic::Status> {
-
-                let auth_errors = check_auth(
+        let auth_errors = check_auth(
             request.metadata(),
             AccessGrant {
                 action: AuthAction::CREATE,
@@ -182,17 +181,16 @@ impl RecipeService for MyRecipeService {
         }
 
         // TODO: I have no idea what this does but borrow checker yells at me
-        let mut r = request.into_inner();
+        let mut r: Recipe = request.into_inner();
         info!("{:?}", r);
         // end Middleware
         if r.id.is_empty() {
             r.id = Uuid::new_v4().to_hyphenated().to_string();
         }
-        let id = io::save_recipe(r);
-
+        self.repository.save_recipe(r.clone());
 
         let result = PostRecipeResponse {
-            recipe_id: id.into(),
+            recipe_id: r.id.into(),
         };
         Ok(Response::new(result))
     }
@@ -204,9 +202,10 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let addr = match env::var("DINNER_HOST") {
         Ok(v) => v.parse().unwrap(),
-        Err(_e) => "127.0.0.1:9090".parse().unwrap()
+        Err(_e) => "127.0.0.1:9090".parse().unwrap(),
     };
-    let serviceimpl = MyRecipeService::default();
+    let repository = io::FileRepository::new("./data".to_string());
+    let serviceimpl = MyRecipeService { repository };
     let svc = RecipeServiceServer::new(serviceimpl);
     info!("gRPC server listening on {}", addr);
     Server::builder().add_service(svc).serve(addr).await?;
