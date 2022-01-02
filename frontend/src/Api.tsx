@@ -2,13 +2,25 @@ import { NodeHttpTransport } from '@improbable-eng/grpc-web-node-http-transport'
 import { RecipeServiceClientImpl, Recipe, GrpcWebImpl } from "./messages/recipe";
 import { grpc } from '@improbable-eng/grpc-web';
 
+const meta = new grpc.Metadata({"authorization-token": "eJYze...."})
 const rpc = new GrpcWebImpl('http://localhost:8080', {
   transport: NodeHttpTransport(),
-  debug: true,
-  metadata: new grpc.Metadata({"authorization-token": "eJYze...."}),
+  debug: false,
+  metadata: meta,
 });
 
 const client = new RecipeServiceClientImpl(rpc);
+
+export function loginUser(googleId: string, accessToken: string, tokenId: string) {
+    meta.append("google-id", googleId);
+    meta.append("google-access-token", accessToken);
+    meta.append("google-token-id", tokenId);
+    console.log("Logged in user: " + googleId);
+}
+
+export function isLoggedIn(): boolean {
+    return meta.has("google-id");
+}
 
 export async function getRecipes(): Promise<Recipe[]> {
   console.log("[GET] recipes");
@@ -25,7 +37,7 @@ export function getRecipe(id: string): Promise<Recipe | undefined> {
       } else {
         return undefined;
       }
-  })
+  }).catch(error => {return undefined})
   return recipe
 }
 

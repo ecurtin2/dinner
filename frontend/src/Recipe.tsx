@@ -10,7 +10,7 @@ const RecipeCard: FunctionComponent<Recipe> = ({
   description,
   teaserImage,
 }: Recipe) => (
-  <Link to={{ pathname: `/recipes/${id}` }}>
+  <Link key={id}  to={{ pathname: `/recipes/${id}` }}>
     <div className="bg-white hover:bg-bg_primary_muted rounded-xl shadow-md">
       <div className="md:flex">
         <div className="md:flex-shrink-0">
@@ -68,7 +68,7 @@ function SingleRecipePage(recipe: Recipe) {
         <SectionHeader name="Ingredients" />
         {recipe.ingredients.map((ing) => {
           return (
-            <div className="grid grid-cols-2 w-1/2">
+            <div key={ing.name} className="grid grid-cols-2 w-1/2">
               <div className="">{ing.name}</div>
               <div className="text-right">{ing.quantity} {ing.unit}</div>
             </div>
@@ -102,6 +102,7 @@ function RecipePage() {
             };
             getmyrecipe();
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
     if (recipe_to_render === undefined) {
@@ -120,6 +121,7 @@ function MultiRecipePage() {
             };
             getmyrecipes();
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
     return <RecipeCardGrid recipes={recipes_to_render} />;

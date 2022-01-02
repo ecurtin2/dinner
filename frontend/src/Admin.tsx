@@ -9,7 +9,7 @@ const EditableRecipeRow: FunctionComponent<Recipe> = ({
     id,
     description,
 }: Recipe) => (
-    <div className="h-24 rounded-xl bg-bg_primary p-3 grid grid-cols-6">
+    <div key={id} className="h-24 rounded-xl bg-bg_primary p-3 grid grid-cols-6">
         <div className="font-bold text-primary">{title}</div>
         <div className="col-span-4">{description}</div>
         <div className="">

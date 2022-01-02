@@ -1,8 +1,6 @@
 import React from "react";
 
-import * as Yup from "yup";
 import {
-  withFormik,
   FormikProps,
   Form,
   Field,
@@ -14,20 +12,6 @@ import { postRecipe, getRecipe } from "./Api";
 import { SingleRecipePage } from "./Recipe";
 import { useParams } from "react-router-dom";
 
-const FormSchema = Yup.object().shape({
-  title: Yup.string()
-    .min(2, "Too Short!")
-    .max(50, "Too long, must be < 50 characters!")
-    .required("required"),
-  description: Yup.string()
-    .min(2, "Too Short!")
-    .max(500, "Too long, must be < 500 characters!")
-    .required("required"),
-  instructions: Yup.string()
-    .min(1, "Too Short!")
-    .required("required"),
-  teaserImage: Yup.string().required("required"),
-});
 
 const MyTextArea = ({ label, ...props }: any) => {
   // useField() returns [formik.getFieldProps(), formik.getFieldMeta()]
@@ -161,11 +145,6 @@ const InnerForm = (props: FormikProps<Recipe>) => {
   );
 };
 
-// Left this here in case i need it later
-// don't really know what im doing lmao
-interface MyFormProps { }
-
-
 export function EditRecipePage() {
   const { id } = useParams<{ id: string }>();
   const [recipe_to_render, set_recipe] = React.useState<Recipe>({
@@ -188,10 +167,10 @@ export function EditRecipePage() {
           };
           getmyrecipe();
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       []
   );
 
-  console.log(recipe_to_render)
   return <Formik enableReinitialize={true} initialValues={recipe_to_render} onSubmit={(values) => { postRecipe(values); }}>
     {InnerForm}
   </Formik>

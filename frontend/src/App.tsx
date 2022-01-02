@@ -4,6 +4,8 @@ import "./App.css";
 import { RecipePage, MultiRecipePage } from "./Recipe";
 import { AdminRecipesPage } from "./Admin";
 import { EditRecipePage } from "./RecipeEditor";
+import { LoginOrProfilePage } from "./Profile";
+
 
 function Home() {
   return (
@@ -23,6 +25,7 @@ function Navigation() {
             <div className="float-right">
                 <Link to="/my-recipes" className="pl-12">My Recipes</Link>
                 <Link to="/recipes" className="pl-12">Recipes</Link>
+                <Link to="/profile" className="pl-12">Profile</Link>
             </div>
           </nav>
         </div>
@@ -38,6 +41,9 @@ function Navigation() {
           </Route>
           <Route path="/my-recipes">
             <AdminRecipesPage />
+          </Route>
+          <Route path="/profile">
+            <LoginOrProfilePage />
           </Route>
           <Route path="/">
             <Home />
