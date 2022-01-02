@@ -4,18 +4,19 @@ mod recipe {
 }
 
 use tonic::{
-    metadata::MetadataMap, metadata::MetadataValue, transport::Server, Request, Response, Status,
+    metadata::MetadataMap, metadata::MetadataValue, Request, Response, Status, transport::Server,
 };
 
-use crate::io::Repository;
-use crate::recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
 use crate::recipe::{
     DeleteRecipeByIdRequest, DeleteRecipeByIdResponse, GetRecipeByIdRequest, GetRecipeByIdResponse,
-    PostRecipeResponse, Recipe, RecipeList, RecipeQuery,
+    PostRecipeResponse, Recipe, RecipeList, RecipeQuery
 };
-use log::info;
+use crate::recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
+use crate::io::Repository;
 use std::env;
+use log::{info};
 use uuid::Uuid;
+
 
 #[derive(Eq, PartialEq, Debug)]
 enum AuthAction {
@@ -68,12 +69,13 @@ fn check_auth(meta: &MetadataMap, requires: AccessGrant) -> Option<Status> {
         false => {
             info!("User not authorized, needs: {:?}", requires);
             Some(Status::unauthenticated("Access denied"))
-        }
+        },
     }
 }
 
 pub struct MyRecipeService {
-    repository: io::FileRepository,
+    repository: io::PostgresRepository
+    // repository: io::FileRepository
 }
 
 #[tonic::async_trait]
@@ -112,7 +114,7 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<DeleteRecipeByIdRequest>,
     ) -> Result<tonic::Response<DeleteRecipeByIdResponse>, tonic::Status> {
-        // Middleware but I don't know enough rust to make it smarter
+                // Middleware but I don't know enough rust to make it smarter
         let auth_errors = check_auth(
             request.metadata(),
             AccessGrant {
@@ -139,6 +141,7 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<RecipeQuery>,
     ) -> Result<tonic::Response<RecipeList>, tonic::Status> {
+
         info!("QUERY_RECIPES");
         let auth_errors = check_auth(
             request.metadata(),
@@ -160,7 +163,7 @@ impl RecipeService for MyRecipeService {
         let recipes = self.repository.query_recipes(req.id);
         match recipes {
             Ok(r) => Ok(Response::new(RecipeList { recipes: r })),
-            Err(_e) => panic!(),
+            Err(_e) => panic!()
         }
     }
 
@@ -168,7 +171,8 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<Recipe>,
     ) -> Result<tonic::Response<PostRecipeResponse>, tonic::Status> {
-        let auth_errors = check_auth(
+
+                let auth_errors = check_auth(
             request.metadata(),
             AccessGrant {
                 action: AuthAction::CREATE,
@@ -188,7 +192,6 @@ impl RecipeService for MyRecipeService {
             r.id = Uuid::new_v4().to_hyphenated().to_string();
         }
         self.repository.save_recipe(r.clone());
-
         let result = PostRecipeResponse {
             recipe_id: r.id.into(),
         };
@@ -202,12 +205,37 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let addr = match env::var("DINNER_HOST") {
         Ok(v) => v.parse().unwrap(),
-        Err(_e) => "127.0.0.1:9090".parse().unwrap(),
+        Err(_e) => "127.0.0.1:9090".parse().unwrap()
     };
-    let repository = io::FileRepository::new("./data".to_string());
+
+    let repo: String = match env::var("DINNER_REPO") {
+        Ok(v) => v.parse().unwrap(),
+        Err(_e) => "./data".parse().unwrap()
+    };
+
+    // This feels pretty hacky but I couldn't get dynamic poly working
+    // so whatever it will do. Comment the block then change the MyRecipeService
+    // parameter to be the type you need
+    // TODO: maybe this can be a cargo flag?
+
+    // *********** POSTGRES **************
+    info!("Configuring postgres repository {}", repo);
+    let repository = io::PostgresRepository::new(repo);
     let serviceimpl = MyRecipeService { repository };
     let svc = RecipeServiceServer::new(serviceimpl);
     info!("gRPC server listening on {}", addr);
     Server::builder().add_service(svc).serve(addr).await?;
-    return Ok(());
+
+    // *********** FILES **************
+    // info!("Configuring file repository at root: {}", repo);
+    // let repository = io::FileRepository::new(repo);
+    // let serviceimpl = MyRecipeService { repository };
+    // let svc = RecipeServiceServer::new(serviceimpl);
+    // info!("gRPC server listening on {}", addr);
+    // Server::builder().add_service(svc).serve(addr).await?;
+
+
+
+
+    Ok(())
 }

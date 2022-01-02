@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use recipe::recipe_service_client::RecipeServiceClient;
 use recipe::{GetRecipeByIdRequest, Recipe, RecipeEmbedding, RecipeQuery};
 use std::env;

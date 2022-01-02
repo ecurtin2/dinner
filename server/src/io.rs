@@ -4,6 +4,9 @@ use prost::{DecodeError, Message};
 use std::fs;
 use std::fs::File;
 use std::io::{Cursor, Error, Write};
+use sqlx::postgres::PgPoolOptions;
+use sqlx;
+use futures::executor::block_on;
 
 pub trait Repository {
     fn load_recipe_by_id(&self, id: String) -> Recipe;
@@ -81,5 +84,35 @@ impl Repository for FileRepository {
         let mut buf: Vec<u8> = Vec::with_capacity(1000);
         r.encode(&mut buf).unwrap();
         file.write_all(&buf).expect("failed to write ");
+    }
+}
+
+
+pub struct PostgresRepository {
+    pool: sqlx::postgres::PgPool,
+}
+
+impl PostgresRepository {
+    pub fn new(conn_str: String) -> Self {
+        let pool = block_on(PgPoolOptions::new().max_connections(5).connect(&conn_str));
+        match pool {
+            Ok(p) => PostgresRepository { pool: p },
+            Err(_e) => panic!("error when creating postgres pool")
+        }
+    }
+}
+
+impl Repository for PostgresRepository {
+    fn load_recipe_by_id(&self, id: String) -> Recipe {
+
+    }
+    fn save_recipe(&self, r: Recipe) {
+
+    }
+    fn delete_recipe(&self, id: String) {
+
+    }
+    fn query_recipes(&self, id: String) -> Result<Vec<Recipe>, Error> {
+
     }
 }
