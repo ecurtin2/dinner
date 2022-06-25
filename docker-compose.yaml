@@ -16,7 +16,7 @@ services:
       - RUST_LOG=info
       - DINNER_HOST=0.0.0.0:9090
 #      Oh apparently you use the container local port within the same service not the outside one
-      - "DATABASE_URL=postgres://postgres:abc123@db:5432/dinner"
+      - "DATABASE_URL=postgres://postgres:abc123@db:5432/recipes"
 
   envoy:
     image: evamicur/dinner-envoy:${DINNER_TAG}
@@ -61,6 +61,8 @@ services:
     depends_on:
       - envoy
       - server
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080
     build:
       context: frontend
       target: dev
