@@ -10,7 +10,7 @@ import { LoginOrProfilePage } from "./Profile";
 function Home() {
   return (
   <div className="">
-    <h2>This is my home page</h2>
+    <h2>This is my home page dude</h2>
   </div>
   )
 }

@@ -1,16 +1,17 @@
-version: '3.4'
+version: '3.9'
 
 services:
   server:
     image: evamicur/dinner-server:${DINNER_TAG}
     build:
       context: .
+      dockerfile: Dockerfile.server
     ports:
       - 9090:9090
     volumes:
       - ./server/data:/server/data
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
     environment:
       - RUST_LOG=info
       - DINNER_HOST=0.0.0.0:9090
