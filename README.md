@@ -14,3 +14,7 @@ sqlx database drop
 sqlx database create
 sqlx migrate run
 ```
+
+### Deploy
+
+Tag release
