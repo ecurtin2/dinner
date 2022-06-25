@@ -4,19 +4,16 @@ mod recipe {
 }
 
 use tonic::{
-    metadata::MetadataMap, metadata::MetadataValue, Request, Response, Status, transport::Server,
+    metadata::MetadataMap, metadata::MetadataValue, transport::Server, Request, Response, Status,
 };
 
+use crate::recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
 use crate::recipe::{
     DeleteRecipeByIdRequest, DeleteRecipeByIdResponse, GetRecipeByIdRequest, GetRecipeByIdResponse,
-    PostRecipeResponse, Recipe, RecipeList, RecipeQuery
+    PostRecipeResponse, Recipe, RecipeList, RecipeQuery,
 };
-use crate::recipe::recipe_service_server::{RecipeService, RecipeServiceServer};
-use crate::io::Repository;
+use log::info;
 use std::env;
-use log::{info};
-use uuid::Uuid;
-
 
 #[derive(Eq, PartialEq, Debug)]
 enum AuthAction {
@@ -69,13 +66,12 @@ fn check_auth(meta: &MetadataMap, requires: AccessGrant) -> Option<Status> {
         false => {
             info!("User not authorized, needs: {:?}", requires);
             Some(Status::unauthenticated("Access denied"))
-        },
+        }
     }
 }
 
 pub struct MyRecipeService {
-    repository: io::PostgresRepository
-    // repository: io::FileRepository
+    repository: io::PostgresRepository,
 }
 
 #[tonic::async_trait]
@@ -102,19 +98,20 @@ impl RecipeService for MyRecipeService {
         info!("{:?}", req);
         // end Middleware
 
-        let r = self.repository.load_recipe_by_id(req.recipe_id);
-        let reply = GetRecipeByIdResponse {
-            was_found: true,
-            recipe: Some(r),
-        };
-        Ok(Response::new(reply))
+        match self.repository.load_recipe_by_id(req.recipe_id).await {
+            Ok(r) => Ok(Response::new(GetRecipeByIdResponse {
+                was_found: true,
+                recipe: Some(r),
+            })),
+            Err(e) => Err(Status::unknown(format!("Could not save: {:?}", e))),
+        }
     }
 
     async fn delete_recipe_by_id(
         &self,
         request: tonic::Request<DeleteRecipeByIdRequest>,
     ) -> Result<tonic::Response<DeleteRecipeByIdResponse>, tonic::Status> {
-                // Middleware but I don't know enough rust to make it smarter
+        // Middleware but I don't know enough rust to make it smarter
         let auth_errors = check_auth(
             request.metadata(),
             AccessGrant {
@@ -132,16 +129,17 @@ impl RecipeService for MyRecipeService {
         info!("{:?}", req);
         // end Middleware
 
-        self.repository.delete_recipe(req.recipe_id);
-        let response = DeleteRecipeByIdResponse { success: true };
-        Ok(Response::new(response))
+        match self.repository.delete_recipe(req.recipe_id).await {
+            Ok(()) => Ok(Response::new(DeleteRecipeByIdResponse { success: true })),
+            Err(e) => Err(Status::unknown(format!("Could not delete: {:?}", e))),
+        }
+
     }
 
     async fn query_recipes(
         &self,
         request: tonic::Request<RecipeQuery>,
     ) -> Result<tonic::Response<RecipeList>, tonic::Status> {
-
         info!("QUERY_RECIPES");
         let auth_errors = check_auth(
             request.metadata(),
@@ -160,10 +158,10 @@ impl RecipeService for MyRecipeService {
         info!("{:?}", req);
         // end Middleware
 
-        let recipes = self.repository.query_recipes(req.id);
+        let recipes = self.repository.query_recipes(req.id).await;
         match recipes {
             Ok(r) => Ok(Response::new(RecipeList { recipes: r })),
-            Err(_e) => panic!()
+            Err(e) => panic!("{:?}", e),
         }
     }
 
@@ -171,8 +169,7 @@ impl RecipeService for MyRecipeService {
         &self,
         request: tonic::Request<Recipe>,
     ) -> Result<tonic::Response<PostRecipeResponse>, tonic::Status> {
-
-                let auth_errors = check_auth(
+        let auth_errors = check_auth(
             request.metadata(),
             AccessGrant {
                 action: AuthAction::CREATE,
@@ -185,17 +182,15 @@ impl RecipeService for MyRecipeService {
         }
 
         // TODO: I have no idea what this does but borrow checker yells at me
-        let mut r: Recipe = request.into_inner();
-        info!("{:?}", r);
+        let r: Recipe = request.into_inner();
         // end Middleware
-        if r.id.is_empty() {
-            r.id = Uuid::new_v4().to_hyphenated().to_string();
+        let new_id = self.repository.save_recipe(r).await;
+        match new_id {
+            Ok(i) => Ok(Response::new(PostRecipeResponse {
+                recipe_id: i.to_hyphenated().to_string(),
+            })),
+            Err(e) => Err(Status::unknown(format!("Could not save: {:?}", e))),
         }
-        self.repository.save_recipe(r.clone());
-        let result = PostRecipeResponse {
-            recipe_id: r.id.into(),
-        };
-        Ok(Response::new(result))
     }
 }
 
@@ -203,39 +198,22 @@ impl RecipeService for MyRecipeService {
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     pretty_env_logger::init_timed();
 
-    let addr = match env::var("DINNER_HOST") {
+    let addr: std::net::SocketAddr = match env::var("DINNER_HOST") {
         Ok(v) => v.parse().unwrap(),
-        Err(_e) => "127.0.0.1:9090".parse().unwrap()
+        Err(_e) => "127.0.0.1:9090".parse().unwrap(),
     };
 
-    let repo: String = match env::var("DINNER_REPO") {
+    let default_repo = "postgres://postgres:abc123@localhost:8002/dinner";
+    let repo: String = match env::var("DATABASE_URL") {
         Ok(v) => v.parse().unwrap(),
-        Err(_e) => "./data".parse().unwrap()
+        Err(_e) => default_repo.parse().unwrap(),
     };
 
-    // This feels pretty hacky but I couldn't get dynamic poly working
-    // so whatever it will do. Comment the block then change the MyRecipeService
-    // parameter to be the type you need
-    // TODO: maybe this can be a cargo flag?
-
-    // *********** POSTGRES **************
     info!("Configuring postgres repository {}", repo);
     let repository = io::PostgresRepository::new(repo);
     let serviceimpl = MyRecipeService { repository };
     let svc = RecipeServiceServer::new(serviceimpl);
     info!("gRPC server listening on {}", addr);
     Server::builder().add_service(svc).serve(addr).await?;
-
-    // *********** FILES **************
-    // info!("Configuring file repository at root: {}", repo);
-    // let repository = io::FileRepository::new(repo);
-    // let serviceimpl = MyRecipeService { repository };
-    // let svc = RecipeServiceServer::new(serviceimpl);
-    // info!("gRPC server listening on {}", addr);
-    // Server::builder().add_service(svc).serve(addr).await?;
-
-
-
-
     Ok(())
 }

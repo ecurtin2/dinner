@@ -1,5 +1,5 @@
 use recipe::recipe_service_client::RecipeServiceClient;
-use recipe::{GetRecipeByIdRequest, Recipe, RecipeEmbedding, RecipeQuery};
+use recipe::{GetRecipeByIdRequest, Recipe, RecipeEmbedding, RecipeQuery, DeleteRecipeByIdRequest};
 use std::env;
 use tonic::{metadata::MetadataValue, transport::Channel, transport::Uri, Request};
 
@@ -10,7 +10,7 @@ pub mod recipe {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let r = Recipe {
-        id: "1".into(),
+        id: "116f4805-03d9-4f04-ad51-fe622cacc0af".into(),
         title: "My recipe".into(),
         description: "my description".into(),
         instructions: "instructinos go here".into(),
@@ -49,7 +49,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .into_inner()
         .recipe
         .unwrap();
-    println!("get_recipe_by_id for {:}", recipe_returned.id);
+    println!("get_recipe_by_id for {:} title is {}", recipe_returned.id, recipe_returned.title);
 
     let r2 = Recipe {
         id: "".into(),
@@ -77,5 +77,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ids: Vec<String> = listed_recipes.into_iter().map(|r| r.id).collect();
     println!("Listed ids={:#?}", ids);
 
+    let delete_rsponse = client.delete_recipe_by_id(tonic::Request::new(DeleteRecipeByIdRequest {recipe_id: response2.recipe_id})).await?.into_inner();
+    println!("{:#?}", delete_rsponse);
     Ok(())
 }
