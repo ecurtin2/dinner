@@ -1,7 +1,7 @@
 use crate::recipe::{Recipe, RecipeEmbedding};
-use chrono;
+// use chrono;
 use futures::executor::block_on;
-use log::{debug, info};
+use log::{info};
 use sqlx;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::types::Uuid;
@@ -17,14 +17,14 @@ struct Id {
 
 #[derive(Debug, sqlx::FromRow)]
 struct User {
-    id: sqlx::types::Uuid,
-    name: String,
+    // id: sqlx::types::Uuid,
+    // name: String,
 }
 
 #[derive(Debug, sqlx::FromRow)]
 struct RecipeRow {
     id: sqlx::types::Uuid,
-    created_at: chrono::DateTime<chrono::Utc>,
+    // created_at: chrono::DateTime<chrono::Utc>,
     title: String,
     description: String,
     // b64 encodded string? TODO: should probably be smarter
@@ -59,13 +59,13 @@ impl PostgresRepository {
         }
     }
 
-    pub async fn get_users(&self) -> Result<(), sqlx::Error> {
-        let users: Vec<User> = sqlx::query_as::<_, User>("SELECT * FROM users")
-            .fetch_all(&self.pool)
-            .await?;
-        println!("{:#?}", users);
-        Ok(())
-    }
+    // pub async fn get_users(&self) -> Result<(), sqlx::Error> {
+    //     let users: Vec<User> = sqlx::query_as::<_, User>("SELECT * FROM users")
+    //         .fetch_all(&self.pool)
+    //         .await?;
+    //     println!("{:#?}", users);
+    //     Ok(())
+    // }
 
     pub async fn load_recipe_by_id(&self, id: String) -> Result<Recipe, sqlx::Error> {
         info!("Loading recipe {}", id);

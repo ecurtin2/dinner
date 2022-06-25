@@ -1,8 +1,7 @@
 /* eslint-disable */
-import Long from "long";
 import { grpc } from "@improbable-eng/grpc-web";
-import _m0 from "protobufjs/minimal";
 import { BrowserHeaders } from "browser-headers";
+import * as _m0 from "protobufjs/minimal";
 
 export const protobufPackage = "recipe";
 
@@ -97,12 +96,9 @@ export const Ingredient = {
   },
 
   fromJSON(object: any): Ingredient {
-    const message = createBaseIngredient();
-    message.name =
-      object.name !== undefined && object.name !== null
-        ? String(object.name)
-        : "";
-    return message;
+    return {
+      name: isSet(object.name) ? String(object.name) : "",
+    };
   },
 
   toJSON(message: Ingredient): unknown {
@@ -166,20 +162,11 @@ export const RecipeIngredient = {
   },
 
   fromJSON(object: any): RecipeIngredient {
-    const message = createBaseRecipeIngredient();
-    message.name =
-      object.name !== undefined && object.name !== null
-        ? String(object.name)
-        : "";
-    message.quantity =
-      object.quantity !== undefined && object.quantity !== null
-        ? Number(object.quantity)
-        : 0;
-    message.unit =
-      object.unit !== undefined && object.unit !== null
-        ? String(object.unit)
-        : "";
-    return message;
+    return {
+      name: isSet(object.name) ? String(object.name) : "",
+      quantity: isSet(object.quantity) ? Number(object.quantity) : 0,
+      unit: isSet(object.unit) ? String(object.unit) : "",
+    };
   },
 
   toJSON(message: RecipeIngredient): unknown {
@@ -260,26 +247,13 @@ export const RecipeEmbedding = {
   },
 
   fromJSON(object: any): RecipeEmbedding {
-    const message = createBaseRecipeEmbedding();
-    message.salt =
-      object.salt !== undefined && object.salt !== null
-        ? Number(object.salt)
-        : 0;
-    message.fat =
-      object.fat !== undefined && object.fat !== null ? Number(object.fat) : 0;
-    message.acid =
-      object.acid !== undefined && object.acid !== null
-        ? Number(object.acid)
-        : 0;
-    message.heat =
-      object.heat !== undefined && object.heat !== null
-        ? Number(object.heat)
-        : 0;
-    message.umami =
-      object.umami !== undefined && object.umami !== null
-        ? Number(object.umami)
-        : 0;
-    return message;
+    return {
+      salt: isSet(object.salt) ? Number(object.salt) : 0,
+      fat: isSet(object.fat) ? Number(object.fat) : 0,
+      acid: isSet(object.acid) ? Number(object.acid) : 0,
+      heat: isSet(object.heat) ? Number(object.heat) : 0,
+      umami: isSet(object.umami) ? Number(object.umami) : 0,
+    };
   },
 
   toJSON(message: RecipeEmbedding): unknown {
@@ -388,33 +362,21 @@ export const Recipe = {
   },
 
   fromJSON(object: any): Recipe {
-    const message = createBaseRecipe();
-    message.id =
-      object.id !== undefined && object.id !== null ? String(object.id) : "";
-    message.title =
-      object.title !== undefined && object.title !== null
-        ? String(object.title)
-        : "";
-    message.description =
-      object.description !== undefined && object.description !== null
-        ? String(object.description)
-        : "";
-    message.instructions =
-      object.instructions !== undefined && object.instructions !== null
+    return {
+      id: isSet(object.id) ? String(object.id) : "",
+      title: isSet(object.title) ? String(object.title) : "",
+      description: isSet(object.description) ? String(object.description) : "",
+      instructions: isSet(object.instructions)
         ? String(object.instructions)
-        : "";
-    message.teaserImage =
-      object.teaserImage !== undefined && object.teaserImage !== null
-        ? String(object.teaserImage)
-        : "";
-    message.embedding =
-      object.embedding !== undefined && object.embedding !== null
+        : "",
+      teaserImage: isSet(object.teaserImage) ? String(object.teaserImage) : "",
+      embedding: isSet(object.embedding)
         ? RecipeEmbedding.fromJSON(object.embedding)
-        : undefined;
-    message.ingredients = (object.ingredients ?? []).map((e: any) =>
-      RecipeIngredient.fromJSON(e)
-    );
-    return message;
+        : undefined,
+      ingredients: Array.isArray(object?.ingredients)
+        ? object.ingredients.map((e: any) => RecipeIngredient.fromJSON(e))
+        : [],
+    };
   },
 
   toJSON(message: Recipe): unknown {
@@ -492,11 +454,11 @@ export const RecipeList = {
   },
 
   fromJSON(object: any): RecipeList {
-    const message = createBaseRecipeList();
-    message.recipes = (object.recipes ?? []).map((e: any) =>
-      Recipe.fromJSON(e)
-    );
-    return message;
+    return {
+      recipes: Array.isArray(object?.recipes)
+        ? object.recipes.map((e: any) => Recipe.fromJSON(e))
+        : [],
+    };
   },
 
   toJSON(message: RecipeList): unknown {
@@ -554,10 +516,9 @@ export const RecipeQuery = {
   },
 
   fromJSON(object: any): RecipeQuery {
-    const message = createBaseRecipeQuery();
-    message.id =
-      object.id !== undefined && object.id !== null ? String(object.id) : "";
-    return message;
+    return {
+      id: isSet(object.id) ? String(object.id) : "",
+    };
   },
 
   toJSON(message: RecipeQuery): unknown {
@@ -609,12 +570,9 @@ export const PostRecipeResponse = {
   },
 
   fromJSON(object: any): PostRecipeResponse {
-    const message = createBasePostRecipeResponse();
-    message.recipeId =
-      object.recipeId !== undefined && object.recipeId !== null
-        ? String(object.recipeId)
-        : "";
-    return message;
+    return {
+      recipeId: isSet(object.recipeId) ? String(object.recipeId) : "",
+    };
   },
 
   toJSON(message: PostRecipeResponse): unknown {
@@ -669,12 +627,9 @@ export const GetRecipeByIdRequest = {
   },
 
   fromJSON(object: any): GetRecipeByIdRequest {
-    const message = createBaseGetRecipeByIdRequest();
-    message.recipeId =
-      object.recipeId !== undefined && object.recipeId !== null
-        ? String(object.recipeId)
-        : "";
-    return message;
+    return {
+      recipeId: isSet(object.recipeId) ? String(object.recipeId) : "",
+    };
   },
 
   toJSON(message: GetRecipeByIdRequest): unknown {
@@ -735,16 +690,10 @@ export const GetRecipeByIdResponse = {
   },
 
   fromJSON(object: any): GetRecipeByIdResponse {
-    const message = createBaseGetRecipeByIdResponse();
-    message.wasFound =
-      object.wasFound !== undefined && object.wasFound !== null
-        ? Boolean(object.wasFound)
-        : false;
-    message.recipe =
-      object.recipe !== undefined && object.recipe !== null
-        ? Recipe.fromJSON(object.recipe)
-        : undefined;
-    return message;
+    return {
+      wasFound: isSet(object.wasFound) ? Boolean(object.wasFound) : false,
+      recipe: isSet(object.recipe) ? Recipe.fromJSON(object.recipe) : undefined,
+    };
   },
 
   toJSON(message: GetRecipeByIdResponse): unknown {
@@ -805,12 +754,9 @@ export const DeleteRecipeByIdRequest = {
   },
 
   fromJSON(object: any): DeleteRecipeByIdRequest {
-    const message = createBaseDeleteRecipeByIdRequest();
-    message.recipeId =
-      object.recipeId !== undefined && object.recipeId !== null
-        ? String(object.recipeId)
-        : "";
-    return message;
+    return {
+      recipeId: isSet(object.recipeId) ? String(object.recipeId) : "",
+    };
   },
 
   toJSON(message: DeleteRecipeByIdRequest): unknown {
@@ -865,12 +811,9 @@ export const DeleteRecipeByIdResponse = {
   },
 
   fromJSON(object: any): DeleteRecipeByIdResponse {
-    const message = createBaseDeleteRecipeByIdResponse();
-    message.success =
-      object.success !== undefined && object.success !== null
-        ? Boolean(object.success)
-        : false;
-    return message;
+    return {
+      success: isSet(object.success) ? Boolean(object.success) : false,
+    };
   },
 
   toJSON(message: DeleteRecipeByIdResponse): unknown {
@@ -1155,7 +1098,6 @@ export type Exact<P, I extends P> = P extends Builtin
         never
       >;
 
-if (_m0.util.Long !== Long) {
-  _m0.util.Long = Long as any;
-  _m0.configure();
+function isSet(value: any): boolean {
+  return value !== null && value !== undefined;
 }
