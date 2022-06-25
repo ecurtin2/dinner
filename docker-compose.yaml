@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   server:
-    image: evamicur/dinner-server:${GITHUB_REF}
+    image: evamicur/dinner-server:${DINNER_TAG}
     build:
       context: .
     ports:
@@ -18,7 +18,7 @@ services:
       - "DATABASE_URL=postgres://postgres:abc123@db:5432/dinner"
 
   envoy:
-    image: evamicur/dinner-envoy:${GITHUB_REF}
+    image: evamicur/dinner-envoy:${DINNER_TAG}
     build:
       context: envoy
     ports:
@@ -28,7 +28,7 @@ services:
       - server
 
   db:
-    image: evamicur/dinner_db:${GITHUB_REF}
+    image: evamicur/dinner_db:${DINNER_TAG}
     build:
       context: database
     volumes:
@@ -48,7 +48,7 @@ services:
       - envoy
       - server
 
-    image: evamicur/dinner-frontend:${GITHUB_REF}
+    image: evamicur/dinner-frontend:${DINNER_TAG}
     build:
       context: frontend
       target: prod
@@ -56,7 +56,7 @@ services:
       - 80:80
 
   frontend-dev:
-    image: evamicur/frontend-dev:${GITHUB_REF}
+    image: evamicur/frontend-dev:${DINNER_TAG}
     depends_on:
       - envoy
       - server
