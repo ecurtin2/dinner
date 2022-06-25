@@ -26,13 +26,13 @@ export function isLoggedIn(): boolean {
 }
 
 export async function getRecipes(): Promise<Recipe[]> {
-  console.log("[GET] recipes");
+  console.log(URL + "[GET] recipes");
   const r_list = await client.QueryRecipes({id: "*"});
   return r_list.recipes;
 }
 
 export function getRecipe(id: string): Promise<Recipe | undefined> {
-  console.log("[GET] recipe/" + id);
+  console.log(URL + " [GET] recipe/" + id);
   const response = client.GetRecipeById({recipeId: id})
   const recipe: Promise<Recipe | undefined> = response.then(r => {
       if (r.wasFound) {
