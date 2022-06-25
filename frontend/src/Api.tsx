@@ -3,7 +3,10 @@ import { RecipeServiceClientImpl, Recipe, GrpcWebImpl } from "./messages/recipe"
 import { grpc } from '@improbable-eng/grpc-web';
 
 const meta = new grpc.Metadata({"authorization-token": "eJYze...."})
-const rpc = new GrpcWebImpl('http://localhost:8080', {
+
+const URL = process.env.REACT_APP_API_URL!;
+
+const rpc = new GrpcWebImpl(URL, {
   transport: NodeHttpTransport(),
   debug: false,
   metadata: meta,
