@@ -25,10 +25,13 @@ export function isLoggedIn(): boolean {
     return meta.has("google-id");
 }
 
-export async function getRecipes(): Promise<Recipe[]> {
+export function getRecipes(): Promise<Recipe[] | undefined> {
   console.log(URL + "[GET] recipes");
-  const r_list = await client.QueryRecipes({id: "*"});
-  return r_list.recipes;
+  const recipes = client.QueryRecipes({id: "*"}).then(r => { return r.recipes} ).catch( err => {
+     console.log("Error during getRecipes", err);
+     return undefined;
+  });
+  return recipes
 }
 
 export function getRecipe(id: string): Promise<Recipe | undefined> {
@@ -40,7 +43,10 @@ export function getRecipe(id: string): Promise<Recipe | undefined> {
       } else {
         return undefined;
       }
-  }).catch(error => {return undefined})
+  }).catch(error => {
+    console.log(error)
+    return undefined
+  })
   return recipe
 }
 

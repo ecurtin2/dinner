@@ -1,5 +1,10 @@
 # dinner
 
+## Develop
+
+Devcontainers
+MAKE SURE YOU MIGRATE THE DB before trying stuff 
+
 
 ## Runbook
 ```

@@ -43,11 +43,11 @@ const UserEditableRecipes: FunctionComponent<Recipe[]> = (recipes: Recipe[]) => 
 
 
 export function AdminRecipesPage() {
-    const default_r: Recipe[] = [];
+    const default_r: Recipe[] | undefined = [];
     const [recipes_to_render, set_recipes] = React.useState(default_r);
     React.useEffect(() => {
         const getmyrecipes = async () => {
-            await getRecipes().then(set_recipes);
+            await getRecipes().then(r => r ?? []).then(set_recipes);
         };
         getmyrecipes();
     },
