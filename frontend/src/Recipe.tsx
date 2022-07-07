@@ -115,9 +115,11 @@ function RecipePage() {
 function MultiRecipePage() {
     const default_r: Recipe[] = [];
     const [recipes_to_render, set_recipes] = React.useState(default_r);
+
+    try {
     React.useEffect( () => {
             const getmyrecipes = async () => {
-                await getRecipes().then(set_recipes);
+                await getRecipes().then(r => set_recipes(r ?? default_r));
             };
             getmyrecipes();
         },
@@ -125,6 +127,10 @@ function MultiRecipePage() {
         []
     );
     return <RecipeCardGrid recipes={recipes_to_render} />;
+  } catch (e: any) {
+    console.log("Error on recipe card grid", e)
+    return <RecipeCardGrid recipes={[]} />;
+  }
 }
 
 export { RecipeCardGrid, RecipeCard, SingleRecipePage, RecipePage, MultiRecipePage };

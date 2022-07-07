@@ -4,6 +4,7 @@ ADD protobufs protobufs
 WORKDIR server
 COPY server/Cargo.lock server/Cargo.toml ./
 RUN cargo fetch
+RUN cargo install sqlx-cli --version ~0.5
 COPY server .
 RUN cargo build --bin server
 CMD ["cargo", "run", "--bin", "server"]
